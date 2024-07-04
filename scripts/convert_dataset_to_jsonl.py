@@ -17,7 +17,7 @@ def main():
     if args.output_path is None:
         args.output_path = args.input_path[:-3]+'jsonl'
 
-    convert_to_jsonl(args.input_path, args.ouput_path)
+    convert_to_jsonl(args.input_path, args.output_path)
 
 if __name__ == '__main__':
     main()
