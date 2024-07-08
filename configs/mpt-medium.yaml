@@ -103,6 +103,9 @@ log_to_console: true
 console_log_interval: 1ba
 
 callbacks:
+  mono_ckpt_saver:
+    save_folder: model/checkpoints
+    batch_interval: 100
   speed_monitor:
     window_size: 10
   lr_monitor: {}
