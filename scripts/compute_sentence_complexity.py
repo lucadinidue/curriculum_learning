@@ -4,7 +4,6 @@ from complexity_functions import *
 from tqdm import tqdm
 import argparse
 import csv
-import os
 
 SAMPLE_SIZE = 10000000
 
@@ -36,7 +35,7 @@ def compute_sentence_complexities(dataset_path:str, complexity_function: Callabl
                     complexity_function(sentences_batch)
                     sentences += sentences_batch
                     sentences_batch = []
-        if sentence_batch:
+        if sentences_batch:
             complexity_function(sentences_batch)
             sentences += sentences_batch
     return sentences

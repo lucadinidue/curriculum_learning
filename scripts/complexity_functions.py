@@ -1,5 +1,5 @@
 from evaluate import load
-
+import torch
 
 def compute_sentence_length(sentences:list):
     for sentence in sentences:
@@ -13,7 +13,15 @@ def compute_model_perplexity(sentences:list, model_name:str='openai-community/gp
     texts = [sentence.text for sentence in sentences]
     batch_size = len(texts)
     perplexity = load('perplexity', module_type='metric')
-    model_perplexities = perplexity.compute(model_id=model_name, add_start_token=False, predictions=texts, batch_size=batch_size)
-    for sentence, sentence_perplexity in zip(sentences, model_perplexities['perplexities']):
-        sentence.complexity = sentence_perplexity
-        sentence.delete_tokens()
+    computed = False
+    while not computed:
+        computed = True
+        try:
+            model_perplexities = perplexity.compute(model_id=model_name, add_start_token=False, predictions=texts, batch_size=batch_size)
+            for sentence, sentence_perplexity in zip(sentences, model_perplexities['perplexities']):
+                sentence.complexity = sentence_perplexity
+                sentence.delete_tokens()
+        except torch.cuda.OutOfMemoryError:
+            batch_size = int(batch_size / 2)
+            print(f'Batch size set to {batch_size}')
+            computed = False
