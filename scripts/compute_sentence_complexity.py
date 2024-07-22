@@ -23,10 +23,11 @@ def compute_sentence_complexities(dataset_path:str, complexity_function: Callabl
                 text = line[len('# text = '):].strip()
                 sentence.set_text(text)
             if line[0].isdigit():
-                token_id = line.split('\t')[0]
+                #token_id = line.split('\t')[0]
+                token = Token(line)
                 if split_clitics:
-                    if '-' not in token_id:
-                        sentence.add_token(line.strip())
+                    if '-' not in token.token_id:
+                        sentence.add_token(token)
                 else:
                     raise Exception('Not implemented yet')         
             if line.strip() == '':
@@ -60,8 +61,8 @@ def main():
     parser.add_argument('-c', '--complexity_function', choices=['sentence_length', 'perplexity'])
     args = parser.parse_args()
 
-    conllu_path = f'data/dataset_samples_10M/sample_{args.sample_idx}.conllu'
-    out_path = f'data/dataset_samples_10M/sample_{args.sample_idx}_{args.complexity_function}.tsv'
+    conllu_path = f'data/dataset_samples/sample_{args.sample_idx}.conllu'
+    out_path = f'data/dataset_samples/sample_{args.sample_idx}_{args.complexity_function}.tsv'
     
     sentences = compute_sentence_complexities(conllu_path, complexity_fuctions[args.complexity_function])
     sorted_sentences = [sentence for sentence in sorted(sentences, key=lambda x: x.complexity)]

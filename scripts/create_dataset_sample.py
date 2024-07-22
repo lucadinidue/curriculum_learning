@@ -7,7 +7,7 @@ import os
 
 NUM_LINES = 768563962
 
-def filter_dataset_sentences_by_lenght(src_dir, min_sent_len):
+def filter_dataset_sentences_by_length(src_dir, min_sent_len, max_sent_len):
     with tqdm(total=NUM_LINES) as pbar:
         ids_dict = dict()
         for file_name in os.listdir(src_dir):
@@ -21,14 +21,14 @@ def filter_dataset_sentences_by_lenght(src_dir, min_sent_len):
                     word_idx = line.split('\t')[0]
                     if '-' not in word_idx:
                         num_words = int(word_idx)
-                if line.strip() == '' and num_words >= min_sent_len:
+                if line.strip() == '' and num_words >= min_sent_len and num_words <= max_sent_len:
                     ids_dict[file_name].append(int(sent_idx))
                 pbar.update(1)
     return ids_dict
 
-def load_sample_ids(ids_path, src_dir, min_sent_len):
+def load_sample_ids(ids_path, src_dir, min_sent_len, max_sent_len):
     if not os.path.exists(ids_path):
-        ids_dict = filter_dataset_sentences_by_length(src_dir, min_sent_len)
+        ids_dict = filter_dataset_sentences_by_length(src_dir, min_sent_len, max_sent_len)
         pickle.dump(ids_dict, open(ids_path, 'wb'))
     else:
         ids_dict = pickle.load(open(ids_path, 'rb'))
@@ -93,15 +93,16 @@ def filter_ids_dict(ids_dict, ids_to_exclude):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-l', '--min_sentence_length', type=int, default=4)
-    parser.add_argument('-n', '--num_sentences', type=int, default=5000000)
+    parser.add_argument('-l', '--min_sentence_length', type=int, default=5)
+    parser.add_argument('-u', '--max_sentence_length', type=int, default=50)
+    parser.add_argument('-n', '--num_sentences', type=int, default=10000000)
     parser.add_argument('-i', '--sample_idx', required=True)
     args = parser.parse_args()
     
     random.seed(42)
 
     src_dir = '/home/wiki_pretraining/wiki_parsed'
-    filtered_ids_path =  f'data/ids_min_len_{args.min_sentence_length}.pkl'
+    filtered_ids_path =  f'data/ids_min_len_{args.min_sentence_length}_max_len_{args.max_sentence_length}.pkl'
 
     samples_dir = 'data/dataset_samples/'
     out_path = os.path.join(samples_dir, f'sample_{args.sample_idx}.conllu')
@@ -110,7 +111,7 @@ def main():
     if os.path.exists(out_path):
         raise Exception(f'Sample {args.sample_idx} already exists.')
 
-    ids_dict = load_sample_ids(filtered_ids_path, src_dir, args.min_sentence_length)
+    ids_dict = load_sample_ids(filtered_ids_path, src_dir, args.min_sentence_length, args.max_sentence_length)
     other_samples_ids = load_ids_to_exclude(samples_dir)
     ids_dcit = filter_ids_dict(ids_dict, other_samples_ids)
     mask = create_ids_mask(ids_dict, args.num_sentences)

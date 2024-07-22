@@ -1,4 +1,4 @@
-def Token():
+class Token():
 
     def __init__(self, token_line:str):
         splitted_token = token_line.strip().split('\t')
