@@ -23,10 +23,14 @@ class Sentence():
         self.complexity = None
 
     def add_token(self, token:Token):
-        self.tokens.append(token)
+        pass
+        #self.tokens.append(token)
 
     def set_text(self, text:str):
         self.text = text
 
     def set_complexity(self, complexity_score:float):
         self.complexity = complexity_score
+
+    def delete_tokens(self):
+        self.tokens = None
