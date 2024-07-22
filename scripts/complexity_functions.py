@@ -23,5 +23,4 @@ def compute_model_perplexity(sentences:list, model_name:str='openai-community/gp
                 sentence.delete_tokens()
         except torch.cuda.OutOfMemoryError:
             batch_size = int(batch_size / 2)
-            print(f'Batch size set to {batch_size}')
             computed = False
