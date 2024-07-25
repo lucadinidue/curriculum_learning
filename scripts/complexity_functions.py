@@ -1,7 +1,8 @@
+from classes import Sentence
 from evaluate import load
 import torch
 
-def compute_sentence_length(sentences:list):
+def compute_sentence_length(sentences:list[Sentence]):
     for sentence in sentences:
         token_ids = [token.token_id for token in sentence.tokens]
         last_token_id = token_ids[-1].split('\t')[0]
@@ -9,7 +10,7 @@ def compute_sentence_length(sentences:list):
         sentence.delete_tokens()
 
 
-def compute_model_perplexity(sentences:list, model_name:str='openai-community/gpt2'):
+def compute_model_perplexity(sentences:list[Sentence], model_name:str='openai-community/gpt2'):
     texts = [sentence.text for sentence in sentences]
     batch_size = len(texts)
     perplexity = load('perplexity', module_type='metric')
@@ -24,3 +25,12 @@ def compute_model_perplexity(sentences:list, model_name:str='openai-community/gp
         except torch.cuda.OutOfMemoryError:
             batch_size = int(batch_size / 2)
             computed = False
+
+
+def compute_gulpease_index(sentences:list[Sentence]):
+    for sentence in sentences:
+        try:
+            sentence.complexity = 89 + (300 - 10*sentence.get_num_chars()) / sentence.get_num_words()
+        except:
+            sentence.complexity = 99999999999
+        sentence.delete_tokens()
