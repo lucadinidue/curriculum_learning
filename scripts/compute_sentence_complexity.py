@@ -9,7 +9,7 @@ SAMPLE_SIZE = 10000000
 
 
 
-def compute_sentence_complexities(dataset_path:str, complexity_function: Callable, split_clitics:bool=True, batch_size:int=512) -> list:
+def compute_sentence_complexities(dataset_path:str, complexity_function: Callable, split_clitics:bool=True, batch_size:int=256) -> list:
     sentences = []
     sentences_batch = []
     with tqdm(total=SAMPLE_SIZE) as pbar:

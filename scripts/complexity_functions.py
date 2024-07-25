@@ -17,7 +17,7 @@ def compute_model_perplexity(sentences:list, model_name:str='openai-community/gp
     while not computed:
         computed = True
         try:
-            model_perplexities = perplexity.compute(model_id=model_name, add_start_token=False, predictions=texts, batch_size=batch_size)
+            model_perplexities = perplexity.compute(model_id=model_name, add_start_token=False, predictions=texts, batch_size=batch_size, max_length=1024)
             for sentence, sentence_perplexity in zip(sentences, model_perplexities['perplexities']):
                 sentence.complexity = sentence_perplexity
                 sentence.delete_tokens()
