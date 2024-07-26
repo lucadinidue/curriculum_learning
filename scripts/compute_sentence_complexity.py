@@ -69,8 +69,8 @@ def main():
     parser.add_argument('-c', '--complexity_function', choices=['sentence_length', 'perplexity', 'gulpease'])
     args = parser.parse_args()
 
-    conllu_path = f'data/dataset_samples/sample_{args.sample_idx}.conllu'
-    out_path = f'data/dataset_samples/sample_{args.sample_idx}_{args.complexity_function}.tsv'
+    conllu_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}.conllu'
+    out_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}_{args.complexity_function}.tsv'
     
     sentences = compute_sentence_complexities(conllu_path, complexity_fuctions[args.complexity_function]['function'], complexity_fuctions[args.complexity_function]['split_clitics'])
     sorted_sentences = [sentence for sentence in sorted(sentences, key=lambda x: x.complexity)]
