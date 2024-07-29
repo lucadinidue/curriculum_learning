@@ -9,7 +9,7 @@ SAMPLE_SIZE = 10000000
 
 
 
-def compute_sentence_complexities(dataset_path:str, complexity_function: Callable, split_clitics:bool=True, batch_size:int=256) -> list:
+def compute_sentence_complexities(dataset_path:str, complexity_function: Callable, split_clitics:bool=True, batch_size:int=512, **kwargs) -> list:
     sentences = []
     sentences_batch = []
     lines_to_skip = 0 # for words with clitics
@@ -19,10 +19,10 @@ def compute_sentence_complexities(dataset_path:str, complexity_function: Callabl
                 pbar.update(1)
                 sent_id = line[len('# sent_id = '):].strip()
                 sentence = Sentence(sent_id)
-            if line.startswith('# text = '):
+            elif line.startswith('# text = '):
                 text = line[len('# text = '):].strip()
                 sentence.set_text(text)
-            if line[0].isdigit():
+            elif line[0].isdigit():
                 token = Token(line)
                 if '-' in token.token_id:
                     if not split_clitics:
@@ -37,14 +37,14 @@ def compute_sentence_complexities(dataset_path:str, complexity_function: Callabl
                         sentence.tokens[-1].override_linguistic_features(line)
                         take_linguistic_features = False
                     lines_to_skip = max(0, lines_to_skip-1)
-            if line.strip() == '':
+            elif line.strip() == '':
                 sentences_batch.append(sentence)
                 if len(sentences_batch) == batch_size:
-                    complexity_function(sentences_batch)
+                    complexity_function(sentences_batch, **kwargs)
                     sentences += sentences_batch
                     sentences_batch = []
         if sentences_batch:
-            complexity_function(sentences_batch)
+            complexity_function(sentences_batch, **kwargs)
             sentences += sentences_batch
     return sentences
 
@@ -56,7 +56,16 @@ def write_sentences_to_file(sentences:list, out_path:str):
         for sentence in sentences:
             csv_writer.writerow([sentence.sentence_id, sentence.text, sentence.complexity])
 
-complexity_fuctions = {
+
+def instantiate_model_and_tokenizer(model_name:str):
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model = AutoModelForCausalLM.from_pretrained(model_name)
+    model = model.to(device)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    return model, tokenizer
+
+
+complexity_functions = {
     'sentence_length': {'function': compute_sentence_length, 'split_clitics': True},
     'perplexity': {'function': compute_model_perplexity, 'split_clitics': True},
     'gulpease': {'function': compute_gulpease_index, 'split_clitics': False}
@@ -67,12 +76,18 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--sample_idx')
     parser.add_argument('-c', '--complexity_function', choices=['sentence_length', 'perplexity', 'gulpease'])
+    parser.add_argument('-m', '--model_name', default='local_models/Minerva-350M-base-v1.0_local')
     args = parser.parse_args()
 
     conllu_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}.conllu'
     out_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}_{args.complexity_function}.tsv'
-    
-    sentences = compute_sentence_complexities(conllu_path, complexity_fuctions[args.complexity_function]['function'], complexity_fuctions[args.complexity_function]['split_clitics'])
+
+    kwargs = {}
+    if args.complexity_function == 'perplexity':
+        model, tokenizer = instantiate_model_and_tokenizer(args.model_name)
+        kwargs = {'model': model, 'tokenizer': tokenizer}
+
+    sentences = compute_sentence_complexities(conllu_path, complexity_functions[args.complexity_function]['function'], complexity_functions[args.complexity_function]['split_clitics'], **kwargs)
     sorted_sentences = [sentence for sentence in sorted(sentences, key=lambda x: x.complexity)]
     write_sentences_to_file(sorted_sentences, out_path)
 
