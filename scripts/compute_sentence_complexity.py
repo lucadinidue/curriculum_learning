@@ -1,3 +1,4 @@
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from collections.abc import Callable
 from classes import Token, Sentence
 from complexity_functions import *
