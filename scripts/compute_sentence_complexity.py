@@ -78,6 +78,7 @@ def main():
     parser.add_argument('-i', '--sample_idx')
     parser.add_argument('-c', '--complexity_function', choices=['sentence_length', 'perplexity', 'gulpease'])
     parser.add_argument('-m', '--model_name', default='local_models/Minerva-350M-base-v1.0_local')
+    parser.add_argument('-b', '--batch_size', type=int, default=1024)
     args = parser.parse_args()
 
     conllu_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}.conllu'
@@ -88,7 +89,7 @@ def main():
         model, tokenizer = instantiate_model_and_tokenizer(args.model_name)
         kwargs = {'model': model, 'tokenizer': tokenizer}
 
-    sentences = compute_sentence_complexities(conllu_path, complexity_functions[args.complexity_function]['function'], complexity_functions[args.complexity_function]['split_clitics'], **kwargs)
+    sentences = compute_sentence_complexities(conllu_path, complexity_functions[args.complexity_function]['function'], complexity_functions[args.complexity_function]['split_clitics'], batch_size=args.batch_size, **kwargs)
     sorted_sentences = [sentence for sentence in sorted(sentences, key=lambda x: x.complexity)]
     write_sentences_to_file(sorted_sentences, out_path)
 

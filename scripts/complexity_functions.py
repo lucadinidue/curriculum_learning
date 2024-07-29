@@ -1,7 +1,7 @@
 from torch.nn import CrossEntropyLoss
-from tqdm.notebook import tqdm
 from classes import Sentence
 from evaluate import load
+from tqdm import tqdm
 import requests
 import torch
 
