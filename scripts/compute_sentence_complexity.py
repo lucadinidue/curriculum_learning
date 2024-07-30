@@ -10,10 +10,13 @@ SAMPLE_SIZE = 10000000
 
 
 
-def compute_sentence_complexities(dataset_path:str, complexity_function: Callable, split_clitics:bool=True, batch_size:int=512, **kwargs) -> list:
+def compute_sentence_complexities(dataset_path:str, complexity_function: Callable, split_clitics:bool=True, batch_size:int=16, id_offset:int=0, num_ids:int=None,**kwargs) -> list:
     sentences = []
     sentences_batch = []
     lines_to_skip = 0 # for words with clitics
+    skipped_ids = 0
+    if num_ids is None:
+        num_ids = SAMPLE_SIZE
     with tqdm(total=SAMPLE_SIZE) as pbar:
         for line in open(dataset_path):
             if line.startswith('# sent_id = '):
@@ -39,7 +42,11 @@ def compute_sentence_complexities(dataset_path:str, complexity_function: Callabl
                         take_linguistic_features = False
                     lines_to_skip = max(0, lines_to_skip-1)
             elif line.strip() == '':
-                sentences_batch.append(sentence)
+                skipped_ids += 1
+                if skipped_ids > id_offset:
+                    sentences_batch.append(sentence)
+                if len(sentences)+len(sentences_batch) >= num_ids:
+                    break
                 if len(sentences_batch) == batch_size:
                     complexity_function(sentences_batch, **kwargs)
                     sentences += sentences_batch
@@ -77,20 +84,23 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--sample_idx')
     parser.add_argument('-c', '--complexity_function', choices=['sentence_length', 'perplexity', 'gulpease'])
-    parser.add_argument('-m', '--model_name', default='local_models/Minerva-350M-base-v1.0_local')
+    parser.add_argument('-m', '--model_name', default='local_models/Minerva-350M-base-v1.0')
     parser.add_argument('-b', '--batch_size', type=int, default=1024)
+    parser.add_argument('-o', '--ids_offset', type=int, default=0)
+    parser.add_argument('-n', '--num_sentences', type=int, default=SAMPLE_SIZE)
     args = parser.parse_args()
 
     conllu_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}.conllu'
-    out_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}_{args.complexity_function}.tsv'
+    out_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}_{args.complexity_function}_{args.ids_offset}.tsv'
 
     kwargs = {}
     if args.complexity_function == 'perplexity':
         model, tokenizer = instantiate_model_and_tokenizer(args.model_name)
         kwargs = {'model': model, 'tokenizer': tokenizer}
 
-    sentences = compute_sentence_complexities(conllu_path, complexity_functions[args.complexity_function]['function'], complexity_functions[args.complexity_function]['split_clitics'], batch_size=args.batch_size, **kwargs)
-    sorted_sentences = [sentence for sentence in sorted(sentences, key=lambda x: x.complexity)]
+    sentences = compute_sentence_complexities(conllu_path, complexity_functions[args.complexity_function]['function'], complexity_functions[args.complexity_function]['split_clitics'], batch_size=args.batch_size, id_offset=args.ids_offset, num_ids=args.num_sentences, **kwargs)
+    # sorted_sentences = [sentence for sentence in sorted(sentences, key=lambda x: x.complexity)]
+    sorted_sentences = sentences
     write_sentences_to_file(sorted_sentences, out_path)
 
 
