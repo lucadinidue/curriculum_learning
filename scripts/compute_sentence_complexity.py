@@ -46,12 +46,16 @@ def compute_sentence_complexities(dataset_path:str, complexity_function: Callabl
                 if skipped_ids > id_offset:
                     sentences_batch.append(sentence)
                 if len(sentences)+len(sentences_batch) >= num_ids:
+                    print('\n\n\nlen sentences', len(sentences))
+                    print('\nlen sentences_batch', len(sentences_batch))
+                    print('\nnum_ids', num_ids)
+                    print('\n\n')
                     break
                 if len(sentences_batch) == batch_size:
                     complexity_function(sentences_batch, **kwargs)
                     sentences += sentences_batch
                     sentences_batch = []
-        if sentences_batch:
+        if len(sentences_batch) > 0:
             complexity_function(sentences_batch, **kwargs)
             sentences += sentences_batch
     return sentences
@@ -91,7 +95,7 @@ def main():
     args = parser.parse_args()
 
     conllu_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}.conllu'
-    out_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}_{args.complexity_function}_{args.ids_offset}.tsv'
+    out_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}_{args.complexity_function}_{args.ids_offset}_{args.num_sentences}.tsv'
 
     kwargs = {}
     if args.complexity_function == 'perplexity':
