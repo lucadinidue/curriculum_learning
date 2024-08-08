@@ -94,8 +94,8 @@ def main():
     parser.add_argument('-n', '--num_sentences', type=int, default=SAMPLE_SIZE)
     args = parser.parse_args()
 
-    conllu_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}.conllu'
-    out_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}_{args.complexity_function}_{args.ids_offset}_{args.num_sentences}.tsv'
+    conllu_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples_10M/sample_{args.sample_idx}.conllu'
+    out_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples_10M/sample_{args.sample_idx}_{args.complexity_function}_{args.ids_offset}_{args.num_sentences}.tsv'
 
     kwargs = {}
     if args.complexity_function == 'perplexity':
