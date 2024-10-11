@@ -101,7 +101,7 @@ def main():
     
     random.seed(42)
 
-    src_dir = '/home/wiki_pretraining/wiki_parsed'
+    src_dir = '/home/luca/Workspace/wiki_parsed'
     filtered_ids_path =  f'data/ids_min_len_{args.min_sentence_length}_max_len_{args.max_sentence_length}.pkl'
 
     samples_dir = 'data/dataset_samples/'
@@ -113,7 +113,7 @@ def main():
 
     ids_dict = load_sample_ids(filtered_ids_path, src_dir, args.min_sentence_length, args.max_sentence_length)
     other_samples_ids = load_ids_to_exclude(samples_dir)
-    ids_dcit = filter_ids_dict(ids_dict, other_samples_ids)
+    ids_dict = filter_ids_dict(ids_dict, other_samples_ids)
     mask = create_ids_mask(ids_dict, args.num_sentences)
     sample_ids = get_sample_ids(ids_dict, mask)
     pickle.dump(sample_ids, open(sample_ids_path, 'wb'))
