@@ -60,7 +60,7 @@ def compute_sentence_complexities(dataset_path:str, complexity_function: Callabl
 
 def write_sentences_to_file(sentences:list, out_path:str):
     with open(out_path, 'w') as out_file:
-        csv_writer = csv.writer(out_file, delimiter='\t')
+        csv_writer = csv.writer(out_file, delimiter=',')
         for sentence in sentences:
             csv_writer.writerow([sentence.sentence_id, sentence.text, sentence.complexity])
 
@@ -90,8 +90,11 @@ def main():
     parser.add_argument('-n', '--num_sentences', type=int, default=SAMPLE_SIZE)
     args = parser.parse_args()
 
-    conllu_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}.conllu'
-    out_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}_{args.complexity_function}_{args.ids_offset}.tsv'
+    #conllu_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}.conllu'
+    #out_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}_{args.complexity_function}_{args.ids_offset}.tsv'
+
+    conllu_path = f'data/dataset_samples/sample_{args.sample_idx}.conllu'
+    out_path = f'data/dataset_samples/sample_{args.sample_idx}_{args.complexity_function}_{args.ids_offset}.csv'
 
     kwargs = {}
     if args.complexity_function == 'perplexity':
