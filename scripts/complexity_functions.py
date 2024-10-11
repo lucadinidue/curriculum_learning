@@ -43,8 +43,13 @@ def compute_model_perplexity(sentences:list[Sentence], **kwargs): #model: AutoMo
     encoded_texts = encodings["input_ids"]
     attn_masks = encodings["attention_mask"]
 
-
-    assert torch.all( torch.ge(attn_masks.sum(1), 2)), "When add_start_token=False, each input text must be at least two tokens long. Run with add_start_token=True if inputting strings of only one token, and remove all empty input strings."
+    try:
+        assert torch.all( torch.ge(attn_masks.sum(1), 2)), "When add_start_token=False, each input text must be at least two tokens long. Run with add_start_token=True if inputting strings of only one token, and remove all empty input strings."
+    except AssertionError:
+        for sentence in sentences:
+            sentence.set_complexity(None)
+            sentence.delete_tokens()
+        return
 
     ppls = []
     loss_fct = CrossEntropyLoss(reduction="none")
@@ -81,6 +86,12 @@ def compute_model_perplexity(sentences:list[Sentence], **kwargs): #model: AutoMo
         except torch.cuda.OutOfMemoryError:
             batch_size = int(batch_size / 2)
             computed = False
+            if batch_size == 0:
+                for sentence in sentences:
+                    sentence.set_complexity(None)
+                    sentence.delete_tokens()
+                return
+            
 
 
 def compute_model_perplexity_old(sentences:list[Sentence], model_name:str='local_models/Minerva-350M-base-v1.0'):
