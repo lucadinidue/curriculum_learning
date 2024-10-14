@@ -14,12 +14,13 @@ class IncrementalStepsCheckpointCallback(TrainerCallback):
 
     def on_step_end(self, args, state, control, **kwargs):
         step = state.global_step
-        
-        if step <= 30 and step % 10 == 0:
+        control.should_save = False
+
+        if step <= 100000 and step % 10000 == 0:
             control.should_save = True
 
-        elif step <= 90 and step % 30 == 0:
+        elif step <= 1000000 and step % 100000 == 0:
             control.should_save = True        
 
-        elif step > 90 and step % 100 == 0:
+        elif step > 1000000 and step % 1000000 == 0:
             control.should_save = True

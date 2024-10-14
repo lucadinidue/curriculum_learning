@@ -101,7 +101,7 @@ def main():
     
     random.seed(42)
 
-    src_dir = '/home/luca/Workspace/wiki_parsed'
+    src_dir = '/home/luca/Workspace/wiki_ita/wiki_parsed'
     filtered_ids_path =  f'data/ids_min_len_{args.min_sentence_length}_max_len_{args.max_sentence_length}.pkl'
 
     samples_dir = 'data/dataset_samples/'
