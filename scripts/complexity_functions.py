@@ -4,6 +4,7 @@ from evaluate import load
 from tqdm import tqdm
 import requests
 import torch
+import time
 
 
 def compute_sentence_length(sentences:list[Sentence]):
@@ -120,7 +121,102 @@ def compute_gulpease_index(sentences:list[Sentence]):
         sentence.delete_tokens()
 
 def compute_readit_score(sentences:list[Sentence]):
-    SERVER_PATH =  "http://api.italianlp.it"
+    SERVER_PATH =  "http://localhost:1200" #"http://api.italianlp.it"
+    readability_types = ['base', 'lexical', 'syntax', 'all']
+
+
+    def load_document(text):
+        r = requests.post(SERVER_PATH + '/documents/',           # carica il documento nel database del server
+                        data={'text': text,                    # durante il caricamento viene eseguita un'analisi linguistica necessaria per calcolare la leggibilita'
+                            'lang': 'IT',
+                            'async': True,                      # chiamata asincrona per gestire testi più grandi
+                            'extra_tasks': ["readability"]     # chiede al server di calcolare anche la leggibilità del docuemnto
+                    })
+        doc_id = r.json()['id']                                  # id del documento nel database del server, che serve per richiedere i risultati delle analisi
+        return doc_id
+    
+    def wait_for_readability_completed(doc_id):
+        completed = False
+        pages_results = []
+        page = 1
+        while not completed:
+            result = requests.get(SERVER_PATH + '/documents/details/%s?page=%s' % (doc_id, page))
+            json_value = result.json()
+            if json_value['readability_executed']:
+                pages_results += json_value['sentences']['data']
+                if json_value['sentences']['next']:
+                    page += 1
+                else:
+                    completed = True
+            else:
+                time.sleep(0.01)
+        return pages_results
+
+    def get_readability_scores(result):
+        all_sent_readability = list()
+        for sent_results in result: #['sentences']['data']:
+            sent_readability = dict()
+            text = sent_results['raw_text']
+            sent_readability['text'] = text
+            sent_readability['base'] = sent_results['readability_score_base']
+            sent_readability['lexical'] = sent_results['readability_score_lexical']
+            sent_readability['syntax'] = sent_results['readability_score_syntax']
+            sent_readability['all'] = sent_results['readability_score_all']
+            all_sent_readability.append(sent_readability)
+        return all_sent_readability
+
+    def parse_results(readability_scores):
+        parsed_result = dict()
+        sent_id = None
+        for sent_dict in readability_scores:
+            if sent_dict['text'].startswith('SENTENCE_wiki_'):
+                sent_id = sent_dict['text'][len('SENTENCE_'):]
+                parsed_result[sent_id] = {r_type: [] for r_type in readability_types}
+            else:
+                for r_type in readability_types:
+                    parsed_result[sent_id][r_type].append(sent_dict[r_type])
+        return parsed_result
+
+    def compute_average_scores(sentence_scores):
+        average_scores = dict()
+        for r_type in sentence_scores.keys():
+            if len(sentence_scores[r_type]) > 0:
+                average_scores[r_type] = sum(sentence_scores[r_type])/len(sentence_scores[r_type])
+            else:
+                average_scores[r_type] = 999
+        return average_scores
+    
+    def remove_none_scores(sentence_scores):
+        cleaned_scores = dict()
+        for r_type in sentence_scores.keys():
+            cleaned_scores[r_type] = [score for score in sentence_scores[r_type] if score is not None]
+        return cleaned_scores
+
+    text = ''      
+    for sentence in sentences:
+        text += f'SENTENCE_{sentence.sentence_id}\n\n'
+        text += sentence.text+'\n\n'
+        sentence.delete_tokens()
+    
+    doc_id = load_document(text)
+    result = wait_for_readability_completed(doc_id)
+    readability_scores = get_readability_scores(result)
+    parsed_result = parse_results(readability_scores)
+
+    for sentence in sentences:
+        if sentence.sentence_id in parsed_result:
+            sentence_scores = parsed_result[sentence.sentence_id]
+            try:
+                sentence.complexity = compute_average_scores(sentence_scores)
+            except:
+                sentence_scores = remove_none_scores(sentence_scores)
+                sentence.complexity = compute_average_scores(sentence_scores)
+        else:
+            sentence.complexity = {r_type: 888 for r_type in readability_types}
+
+
+def compute_readit_score_old(sentences:list[Sentence]):
+    SERVER_PATH =  "http://localhost:1200" #"http://api.italianlp.it"
 
     def load_document(text):
         r = requests.post(SERVER_PATH + '/documents/',           # carica il documento nel database del server
@@ -131,19 +227,33 @@ def compute_readit_score(sentences:list[Sentence]):
         doc_id = r.json()['id']                                  # id del documento nel database del server, che serve per richiedere i risultati delle analisi
         return doc_id
     
+
+    def compute_average_scores(sentence_scores):
+        average_scores = dict()
+        for r_type in sentence_scores.keys():
+            if len(sentence_scores[r_type]) > 0:
+                average_scores[r_type] = sum(sentence_scores[r_type])/len(sentence_scores[r_type])
+            else:
+                average_scores[r_type] = 999
+        return average_scores
+
+
     def get_readability_scores(doc_id):
         r = requests.get(SERVER_PATH + '/documents/details/%s' % doc_id)
-
+        sent_readability = {'base': [], 'lexical': [], 'syntax': [], 'all': []}
         for sent_results in r.json()['sentences']['data']:
-            readit_score = sent_results['readability_score_all']
-            if readit_score is None:
-                readit_score = 99999999999
-            return readit_score
+            if sent_readability['base'] is not None:
+                sent_readability['base'].append(sent_results['readability_score_base'])
+                sent_readability['lexical'].append(sent_results['readability_score_lexical'])
+                sent_readability['syntax'].append(sent_results['readability_score_syntax'])
+                sent_readability['all'].append(sent_results['readability_score_all'])
+        return compute_average_scores(sent_readability)        
+            
             
     for sentence in sentences:
-        api_id = load_document(sentence.text)
         try:
+            api_id = load_document(sentence.text)
             sentence.complexity = get_readability_scores(api_id)
         except:
-            sentence.complexity = 99999999999
+            sentence.complexity = {'base': 888, 'lexical': 888, 'syntax': 888, 'all': 888}
         sentence.delete_tokens()

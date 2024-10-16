@@ -5,24 +5,27 @@ from complexity_functions import *
 from tqdm import tqdm
 import argparse
 import csv
+import os
 
 SAMPLE_SIZE = 10000000
+ORDERED_KEYS = ['base', 'lexical', 'syntax', 'all']
 
-
-
-def compute_sentence_complexities(dataset_path:str, complexity_function: Callable, split_clitics:bool=True, batch_size:int=16, id_offset:int=0, num_ids:int=None,**kwargs) -> list:
+def compute_sentence_complexities(dataset_path:str, out_path:str, complexity_function: Callable, split_clitics:bool=True, batch_size:int=16, last_id:int=None, **kwargs) -> list:
     sentences = []
     sentences_batch = []
     lines_to_skip = 0 # for words with clitics
-    skipped_ids = 0
-    if num_ids is None:
-        num_ids = SAMPLE_SIZE
+    found_last_id = True if last_id is None else False
+    
     with tqdm(total=SAMPLE_SIZE) as pbar:
         for line in open(dataset_path):
             if line.startswith('# sent_id = '):
                 pbar.update(1)
                 sent_id = line[len('# sent_id = '):].strip()
+                if sent_id == last_id:
+                    found_last_id = True
                 sentence = Sentence(sent_id)
+            elif not found_last_id:
+                continue
             elif line.startswith('# text = '):
                 text = line[len('# text = '):].strip()
                 sentence.set_text(text)
@@ -42,27 +45,31 @@ def compute_sentence_complexities(dataset_path:str, complexity_function: Callabl
                         take_linguistic_features = False
                     lines_to_skip = max(0, lines_to_skip-1)
             elif line.strip() == '':
-                skipped_ids += 1
-                if skipped_ids > id_offset:
+                if found_last_id and sent_id != last_id:
                     sentences_batch.append(sentence)
-                if len(sentences)+len(sentences_batch) >= num_ids:
-                    break
                 if len(sentences_batch) == batch_size:
                     complexity_function(sentences_batch, **kwargs)
                     sentences += sentences_batch
                     sentences_batch = []
+                if len(sentences) >= 1000:
+                    write_sentences_to_file(sentences, out_path)
+                    sentences = []
+
         if len(sentences_batch) > 0:
             complexity_function(sentences_batch, **kwargs)
             sentences += sentences_batch
-    return sentences
-
+            write_sentences_to_file(sentences, out_path)
 
 
 def write_sentences_to_file(sentences:list, out_path:str):
-    with open(out_path, 'w') as out_file:
+    with open(out_path, 'a') as out_file:
         csv_writer = csv.writer(out_file, delimiter=',')
         for sentence in sentences:
-            csv_writer.writerow([sentence.sentence_id, sentence.text, sentence.complexity])
+            if type(sentence.complexity) == dict:
+                complexities = [sentence.complexity[key] for key in ORDERED_KEYS]
+                csv_writer.writerow([sentence.sentence_id, sentence.text] + complexities)
+            else:    
+                csv_writer.writerow([sentence.sentence_id, sentence.text, sentence.complexity])
 
 
 def instantiate_model_and_tokenizer(model_name:str):
@@ -76,33 +83,47 @@ def instantiate_model_and_tokenizer(model_name:str):
 complexity_functions = {
     'sentence_length': {'function': compute_sentence_length, 'split_clitics': True},
     'perplexity': {'function': compute_model_perplexity, 'split_clitics': True},
-    'gulpease': {'function': compute_gulpease_index, 'split_clitics': False}
+    'gulpease': {'function': compute_gulpease_index, 'split_clitics': False},
+    'readit': {'function': compute_readit_score, 'split_clitics': True}
 }
 
+
+def load_last_index(src_path):
+    last_id = None
+    with open(src_path, 'r') as src_file:
+        csv_reader = csv.reader(src_file, delimiter=',')
+        for line in csv_reader:
+            last_id = line[0]
+    return last_id
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--sample_idx')
-    parser.add_argument('-c', '--complexity_function', choices=['sentence_length', 'perplexity', 'gulpease'])
+    parser.add_argument('-c', '--complexity_function', choices=['sentence_length', 'perplexity', 'gulpease', 'readit'])
     parser.add_argument('-m', '--model_name', default='local_models/Minerva-350M-base-v1.0')
     parser.add_argument('-b', '--batch_size', type=int, default=1024)
-    parser.add_argument('-o', '--ids_offset', type=int, default=0)
-    parser.add_argument('-n', '--num_sentences', type=int, default=SAMPLE_SIZE)
+    parser.add_argument('-r', '--restart', action='store_true')
     args = parser.parse_args()
 
-    #conllu_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}.conllu'
-    #out_path = f'/leonardo_work/IscrC_AILP/curriculum_learning/data/dataset_samples/sample_{args.sample_idx}_{args.complexity_function}_{args.ids_offset}.tsv'
-
     conllu_path = f'data/dataset_samples/sample_{args.sample_idx}.conllu'
-    out_path = f'data/dataset_samples/sample_{args.sample_idx}_{args.complexity_function}_{args.ids_offset}.csv'
+    out_path = f'data/dataset_samples/sample_{args.sample_idx}_{args.complexity_function}.csv'
+
+    last_id = None
+    if os.path.exists(out_path):
+        if args.restart:
+            os.remove(out_path)
+            last_id = None
+        else:
+            last_id = load_last_index(out_path)
+
+    print(f'Starting from id = {last_id}.')
 
     kwargs = {}
     if args.complexity_function == 'perplexity':
         model, tokenizer = instantiate_model_and_tokenizer(args.model_name)
         kwargs = {'model': model, 'tokenizer': tokenizer}
 
-    sentences = compute_sentence_complexities(conllu_path, complexity_functions[args.complexity_function]['function'], complexity_functions[args.complexity_function]['split_clitics'], batch_size=args.batch_size, id_offset=args.ids_offset, num_ids=args.num_sentences, **kwargs)
-    # sorted_sentences = [sentence for sentence in sorted(sentences, key=lambda x: x.complexity)]
+    sentences = compute_sentence_complexities(conllu_path, out_path, complexity_functions[args.complexity_function]['function'], complexity_functions[args.complexity_function]['split_clitics'], batch_size=args.batch_size, last_id=last_id, **kwargs)
     sorted_sentences = sentences
     write_sentences_to_file(sorted_sentences, out_path)
 

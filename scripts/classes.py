@@ -44,7 +44,7 @@ class Sentence():
     def set_text(self, text:str):
         self.text = text
 
-    def set_complexity(self, complexity_score:float):
+    def set_complexity(self, complexity_score:float|dict[float]):
         self.complexity = complexity_score
 
     def delete_tokens(self):
