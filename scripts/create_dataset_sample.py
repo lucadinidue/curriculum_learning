@@ -7,7 +7,8 @@ import os
 
 NUM_LINES = 768563962
 
-def filter_dataset_sentences_by_length(src_dir, min_sent_len, max_sent_len):
+def filter_dataset_sentences_by_length(src_dir: str, min_sent_len: int, max_sent_len: int) -> dict:
+    print(f'Filtering dataset by sentence lenght ({min_sent_len} - {max_sent_len})\n')
     with tqdm(total=NUM_LINES) as pbar:
         ids_dict = dict()
         for file_name in os.listdir(src_dir):
@@ -26,7 +27,7 @@ def filter_dataset_sentences_by_length(src_dir, min_sent_len, max_sent_len):
                 pbar.update(1)
     return ids_dict
 
-def load_sample_ids(ids_path, src_dir, min_sent_len, max_sent_len):
+def load_sample_ids(ids_path: str, src_dir: str, min_sent_len: int, max_sent_len: int) -> dict:
     if not os.path.exists(ids_path):
         ids_dict = filter_dataset_sentences_by_length(src_dir, min_sent_len, max_sent_len)
         pickle.dump(ids_dict, open(ids_path, 'wb'))
@@ -34,13 +35,13 @@ def load_sample_ids(ids_path, src_dir, min_sent_len, max_sent_len):
         ids_dict = pickle.load(open(ids_path, 'rb'))
     return ids_dict
 
-def create_ids_mask(ids_dict, num_sentences):
+def create_ids_mask(ids_dict: dict, num_sentences: int) -> list:
     mask_len = sum([len(ids_list) for ids_list in ids_dict.values()])
     mask = [True]*num_sentences + [False]*(mask_len-num_sentences)
     random.shuffle(mask)
     return mask
 
-def get_sample_ids(ids_dict, mask):
+def get_sample_ids(ids_dict:dict,  mask: list) -> dict:
     sample_ids = dict()
     last_mask_id = 0
     for doc_id, ids_list in ids_dict.items():
@@ -50,7 +51,7 @@ def get_sample_ids(ids_dict, mask):
         sample_ids[doc_id] = sample_ids_list.tolist()
     return sample_ids
 
-def extract_dataset_sample(src_dir, sample_ids, out_path):
+def extract_dataset_sample(src_dir: str, sample_ids: dict, out_path:str):
     with tqdm(total=NUM_LINES) as pbar:
         with open(out_path, 'w') as out_file:
             for file_name in os.listdir(src_dir):
@@ -69,7 +70,7 @@ def extract_dataset_sample(src_dir, sample_ids, out_path):
                         out_file.write(line)
                     pbar.update(1)
 
-def load_ids_to_exclude(samples_dir):
+def load_ids_to_exclude(samples_dir: str) -> dict:
     ids_files_paths = [os.path.join(samples_dir, file_name) for file_name in os.listdir(samples_dir) if file_name.endswith('ids.pkl')]
     if len(ids_files_paths) == 0:
         return None
@@ -84,17 +85,17 @@ def load_ids_to_exclude(samples_dir):
     return ids_to_exclude
             
 
-def filter_ids_dict(ids_dict, ids_to_exclude):
+def filter_ids_dict(ids_dict: dict, ids_to_exclude: dict) -> dict:
     if ids_to_exclude is not None:
         for file_name in ids_dict.keys():
-            ids_dict[file_name] = list(set(ids_dict[file_name]) - set(ids_to_exclude[file_name]))
+            ids_dict[file_name] = sorted(list(set(ids_dict[file_name]) - set(ids_to_exclude[file_name])))
     return ids_dict
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--min_sentence_length', type=int, default=5)
-    parser.add_argument('-u', '--max_sentence_length', type=int, default=50)
+    parser.add_argument('-u', '--max_sentence_length', type=int, default=60)
     parser.add_argument('-n', '--num_sentences', type=int, default=10000000)
     parser.add_argument('-i', '--sample_idx', required=True)
     args = parser.parse_args()

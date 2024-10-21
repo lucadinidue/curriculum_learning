@@ -29,8 +29,8 @@ def main():
     parser.add_argument('-d', '--sample_dim', type=int)
     args = parser.parse_args()
 
-    conllu_path = f'data/dataset_samples_10M/sample_{args.sample_idx}.conllu'
-    out_path = f'data/dataset_samples_10M/eval_{args.sample_idx}.tsv'
+    conllu_path = f'data/dataset_samples/sample_{args.sample_idx}.conllu'
+    out_path = f'data/dataset_samples/sample_{args.sample_idx}_eval.tsv'
 
     eval_sentences = extract_sentences_sample(conllu_path, args.sample_dim)
     write_sentences_to_file(eval_sentences, out_path)
