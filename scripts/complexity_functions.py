@@ -169,12 +169,19 @@ def compute_readit_score(sentences:list[Sentence]):
         parsed_result = dict()
         sent_id = None
         for sent_dict in readability_scores:
-            if sent_dict['text'].startswith('SENTENCE_wiki_'):
+            if sent_dict['text'] is None:
+                print('Frase vuota')
+                print(sent_dict)
+            elif sent_dict['text'].startswith('SENTENCE_wiki_'):
                 sent_id = sent_dict['text'][len('SENTENCE_'):]
                 parsed_result[sent_id] = {r_type: [] for r_type in readability_types}
             else:
-                for r_type in readability_types:
-                    parsed_result[sent_id][r_type].append(sent_dict[r_type])
+                if sent_id is not None:
+                    for r_type in readability_types:
+                        parsed_result[sent_id][r_type].append(sent_dict[r_type])
+                else:
+                    print('Errore')
+                    print(sent_dict)
         return parsed_result
 
     def compute_average_scores(sentence_scores):
