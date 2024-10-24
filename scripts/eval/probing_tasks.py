@@ -104,10 +104,7 @@ def already_coputed(src_dir):
             return True
     return False
 
-def do_probing_tasks(model_path, tokenizer_path='models/bert_tokenizer', train_path='data/probing_data/train.tsv', test_path= 'data/probing_data/test.tsv', batch_size=16):
-    model_str = '/'.join(model_path.split('/')[-2:])
-    output_dir = os.path.join('data/probing_results', model_str)
-
+def do_probing_tasks(model_path, output_dir, tokenizer_path='models/bert_tokenizer', train_path='data/probing_data/train.tsv', test_path= 'data/probing_data/test.tsv', batch_size=16):
     if already_coputed(output_dir):
         print(f'Skipping {output_dir}')
         return
@@ -165,8 +162,12 @@ def main():
     start_time = time.time()
     for checkpoint_dir in os.listdir(args.model_path):
         checkpoint_path = os.path.join(args.model_path, checkpoint_dir)
+        model_str = '/'.join(args.model_path.split('/')[-2:])
+        output_dir = os.path.join('data/probing_results', model_str, checkpoint_dir)
         if os.path.isdir(checkpoint_path):
-            do_probing_tasks(checkpoint_path, args.tokenizer_path, args.train_path, args.test_path, args.batch_size)
+            do_probing_tasks(checkpoint_path, output_dir, args.tokenizer_path, args.train_path, args.test_path, args.batch_size)
+
+    do_probing_tasks(args.model_path, os.path.join('data/probing_results', args.model_path.split('/')[1], 'checkpoint-117189'), args.tokenizer_path,  args.train_path, args.test_path, args.batch_size)
     print("--- %s seconds ---" % (time.time() - start_time))
     
 

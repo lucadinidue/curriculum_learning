@@ -65,11 +65,12 @@ def write_sentences_to_file(sentences:list, out_path:str):
     with open(out_path, 'a') as out_file:
         csv_writer = csv.writer(out_file, delimiter=',')
         for sentence in sentences:
-            if type(sentence.complexity) == dict:
-                complexities = [sentence.complexity[key] for key in ORDERED_KEYS]
-                csv_writer.writerow([sentence.sentence_id, sentence.text] + complexities)
-            else:    
-                csv_writer.writerow([sentence.sentence_id, sentence.text, sentence.complexity])
+            if sentence is not None:
+                if type(sentence.complexity) == dict:
+                    complexities = [sentence.complexity[key] for key in ORDERED_KEYS]
+                    csv_writer.writerow([sentence.sentence_id, sentence.text] + complexities)
+                else:    
+                    csv_writer.writerow([sentence.sentence_id, sentence.text, sentence.complexity])
 
 
 def instantiate_model_and_tokenizer(model_name:str):
