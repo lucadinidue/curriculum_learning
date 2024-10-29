@@ -5,6 +5,6 @@ venv/*
 llm-foundry/*
 *.out
 *.sh
-*/__pycache__/*
+**/__pycache__
 models/*
 *pyc
