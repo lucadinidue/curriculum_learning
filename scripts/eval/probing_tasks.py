@@ -12,6 +12,7 @@ import time
 import csv
 import os
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def save_tensor(tensor, out_dir):
