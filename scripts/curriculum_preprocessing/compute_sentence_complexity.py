@@ -10,12 +10,16 @@ import os
 SAMPLE_SIZE = 10000000
 ORDERED_KEYS = ['base', 'lexical', 'syntax', 'all']
 
-def compute_sentence_complexities(dataset_path:str, out_path:str, complexity_function: Callable, split_clitics:bool=True, batch_size:int=16, last_id:int=None, **kwargs) -> list:
+def compute_sentence_complexities(dataset_path:str, out_path:str, complexity_function: Callable, split_clitics:bool=True, batch_size:int=16, last_id:int=None, skip_first:bool=False,  **kwargs) -> list:
     sentences = []
     sentences_batch = []
     lines_to_skip = 0 # for words with clitics
     found_last_id = True if last_id is None else False
-    
+    first_skipped = True if not skip_first else False
+
+    if not first_skipped:
+        print('Skipping first batch to avoid error!')
+
     with tqdm(total=SAMPLE_SIZE) as pbar:
         for line in open(dataset_path):
             if line.startswith('# sent_id = '):
@@ -48,10 +52,13 @@ def compute_sentence_complexities(dataset_path:str, out_path:str, complexity_fun
                 if found_last_id and sent_id != last_id:
                     sentences_batch.append(sentence)
                 if len(sentences_batch) == batch_size:
-                    complexity_function(sentences_batch, **kwargs)
-                    sentences += sentences_batch
+                    if first_skipped:
+                        complexity_function(sentences_batch, **kwargs)
+                        sentences += sentences_batch
+                    else:
+                        first_skipped = True
                     sentences_batch = []
-                if len(sentences) >= 1000:
+                if len(sentences) >= 100:
                     write_sentences_to_file(sentences, out_path)
                     sentences = []
 
@@ -104,6 +111,7 @@ def main():
     parser.add_argument('-m', '--model_name', default='local_models/Minerva-350M-base-v1.0')
     parser.add_argument('-b', '--batch_size', type=int, default=1024)
     parser.add_argument('-r', '--restart', action='store_true')
+    parser.add_argument('-s', '--skip_first', action='store_true')
     args = parser.parse_args()
 
     conllu_path = f'data/dataset_samples/sample_{args.sample_idx}.conllu'
@@ -124,7 +132,7 @@ def main():
         model, tokenizer = instantiate_model_and_tokenizer(args.model_name)
         kwargs = {'model': model, 'tokenizer': tokenizer}
 
-    sentences = compute_sentence_complexities(conllu_path, out_path, complexity_functions[args.complexity_function]['function'], complexity_functions[args.complexity_function]['split_clitics'], batch_size=args.batch_size, last_id=last_id, **kwargs)
+    sentences = compute_sentence_complexities(conllu_path, out_path, complexity_functions[args.complexity_function]['function'], complexity_functions[args.complexity_function]['split_clitics'], batch_size=args.batch_size, last_id=last_id, skip_first=args.skip_first, **kwargs)
     sorted_sentences = sentences
     write_sentences_to_file(sorted_sentences, out_path)
 
