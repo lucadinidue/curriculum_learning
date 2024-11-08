@@ -1,4 +1,5 @@
 from transformers import AutoModelForMaskedLM, AutoTokenizer
+from utils import get_last_checkpoint
 from tqdm import tqdm
 import pandas as pd
 import argparse
@@ -63,22 +64,29 @@ def compute_checkpoint_perplexity(model_path, tokenizer,  output_path, sentences
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--model_path', type=str)
-    parser.add_argument('-n', '--num_sentences', type=int, default=100)
-    parser.add_argument('-d', '--dataset_path', type=str, default='data/datasets/eval_3.csv')
+    parser.add_argument('-n', '--num_sentences', type=int, default=1000)
+    parser.add_argument('-d', '--dataset', type=str, choices=['wikipedia', 'treebank'])
     parser.add_argument('-o', '--output_dir', type=str, default=None)
     args = parser.parse_args()
 
-    sentences_df = pd.read_csv(args.dataset_path).head(args.num_sentences)[['sent_id', 'text']]
+    if args.dataset == 'wikipedia':
+        dataset_path = 'data/datasets/eval_3.csv'
+        sentences_df = pd.read_csv(dataset_path).head(args.num_sentences)[['sent_id', 'text']]
+    else:
+        dataset_path = 'data/probing_data/test.tsv'
+        sentences_df = pd.read_csv(dataset_path, sep='\t').head(args.num_sentences)[['identifier', 'text']]
+        sentences_df.rename(columns={'identifier': 'sent_id'}, inplace=True)
     
     tokenizer_path = 'models/bert_tokenizer'
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
     
     if args.output_dir is None:
-        args.output_dir = os.path.join('data/perplexity', args.model_path.split('/')[1])
-
+        args.output_dir = os.path.join('data/perplexity', args.dataset, args.model_path.split('/')[-1])
     
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
+
+    last_training_step = get_last_checkpoint(args.model_path)
 
     for checkpoint_name in os.listdir(args.model_path):
         checkpoint_model_path = os.path.join(args.model_path, checkpoint_name)
@@ -86,7 +94,7 @@ def main():
             output_path = os.path.join(args.output_dir, checkpoint_name+'.csv')
             compute_checkpoint_perplexity(checkpoint_model_path, tokenizer,  output_path, sentences_df)
     
-    compute_checkpoint_perplexity(args.model_path, tokenizer, os.path.join(args.output_dir, 'checkpoint-117189.csv'), sentences_df)
+    compute_checkpoint_perplexity(args.model_path, tokenizer, os.path.join(args.output_dir, f'checkpoint-{last_training_step}'), sentences_df)
 
 if __name__ == '__main__':
     main()

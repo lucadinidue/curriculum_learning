@@ -2,6 +2,7 @@ from transformers import AutoModel, AutoTokenizer, default_data_collator
 from sklearn.preprocessing import MinMaxScaler
 from torch.utils.data import DataLoader
 from sklearn.linear_model import Ridge
+from utils import get_last_checkpoint
 from datasets import load_dataset
 from tqdm import tqdm
 import pandas as pd
@@ -9,6 +10,7 @@ import argparse
 import shutil
 import torch
 import time
+import json
 import csv
 import os
 
@@ -101,7 +103,7 @@ def save_predictions(out_path, predictions, labels):
 def already_coputed(src_dir):
     layer_0_dir = os.path.join(src_dir, '0')
     if os.path.exists(layer_0_dir):
-        if len(os.listdir(layer_0_dir)) == 82:
+        if len(os.listdir(layer_0_dir)) == 64:
             return True
     return False
 
@@ -160,6 +162,8 @@ def main():
     parser.add_argument('-k', '--tokenizer_path', type=str, default='models/bert_tokenizer')
     args = parser.parse_args()
 
+    last_training_step = get_last_checkpoint(args.model_path)
+
     start_time = time.time()
     for checkpoint_dir in os.listdir(args.model_path):
         checkpoint_path = os.path.join(args.model_path, checkpoint_dir)
@@ -168,7 +172,7 @@ def main():
         if os.path.isdir(checkpoint_path):
             do_probing_tasks(checkpoint_path, output_dir, args.tokenizer_path, args.train_path, args.test_path, args.batch_size)
 
-    do_probing_tasks(args.model_path, os.path.join('data/probing_results', args.model_path.split('/')[1], 'checkpoint-117189'), args.tokenizer_path,  args.train_path, args.test_path, args.batch_size)
+    do_probing_tasks(args.model_path, os.path.join('data/probing_results', model_str, f'checkpoint-{last_training_step}'), args.tokenizer_path,  args.train_path, args.test_path, args.batch_size)
     print("--- %s seconds ---" % (time.time() - start_time))
     
 

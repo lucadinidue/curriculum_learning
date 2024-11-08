@@ -1,6 +1,7 @@
 import os
 import sys
 sys.path.append(os.path.abspath("."))
+os.environ['WANDB_DISABLED'] = 'true'
 
 from modules.custom_modeling_bert import BertForSentipolcClassification
 from transformers import (
@@ -20,8 +21,6 @@ import argparse
 import evaluate
 import ast
 
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 mae = evaluate.load('mae')
 spearmanr = evaluate.load("spearmanr")
@@ -239,14 +238,14 @@ def tokenize_dataset_dataset_for_token_classification(dataset, tokenizer, model)
     tokenized_dataset = dataset.map(tokenize_and_align_labels, batched=True, remove_columns=['text','id'], desc="Running tokenizer on train dataset")
     return tokenized_dataset
 
-def main():
+def main1():
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--model_dir', type=str)
     parser.add_argument('-t', '--downstream_task', type=str, choices=['complexity', 'sentiment', 'coherence', 'pos_tagging'])
     parser.add_argument('-e', '--epochs', type=int, default=10)
     args = parser.parse_args()
 
-    model_name = args.model_dir.split('/')[-1]
+    model_name = args.model_dir.split('/')[-1] if 'bert' in args.model_dir.split('/')[-1] else args.model_dir.split('/')[-2]
     output_dir = os.path.join('models/downstream_tasks', args.downstream_task, model_name)
     task_map = TASKS_MAP[args.downstream_task]
 
@@ -258,5 +257,32 @@ def main():
     
     model_finetuning(args.model_dir, args.downstream_task, task_map['num_labels'], task_map['compute_metrics'], os.path.join(output_dir, 'checkpoint-117189'), args.epochs)
 
+
+def main():
+    model_names = ['models/pretrained/bert_medium_42_train_1_gulpease', 'models/pretrained/bert_medium_42_train_1_gulpease_inverted', 'models/pretrained/bert_medium_42_train_1_orig_inverted']
+    downstream_tasks = ['sentiment', 'complexity', 'pos_tagging']
+
+    for downstream_task in downstream_tasks:
+        for model_dir in model_names:
+            model_name = model_dir.split('/')[-1] if 'bert' in model_dir.split('/')[-1] else model_dir.split('/')[-2]
+            output_dir = os.path.join('models/downstream_tasks', downstream_task, model_name)
+            task_map = TASKS_MAP[downstream_task]
+
+            for checkpoint_name in os.listdir(model_dir):
+                checkpoint_path = os.path.join(model_dir, checkpoint_name)
+                if os.path.isdir(checkpoint_path):
+                    output_path = os.path.join(output_dir, checkpoint_name)
+                    if not os.path.exists(output_path):
+                        model_finetuning(checkpoint_path, downstream_task, task_map['num_labels'], task_map['compute_metrics'], output_path, 10)
+                    else:
+                        print('skipping', checkpoint_path, 'on', downstream_task)
+
+        if not os.path.exists(os.path.join(output_dir, 'checkpoint-117189')):   
+            model_finetuning(model_dir, downstream_task, task_map['num_labels'], task_map['compute_metrics'], os.path.join(output_dir, 'checkpoint-117189'), 10)
+        else:
+            print('skipping final checkpoint on', downstream_task)
+
+
 if __name__ == '__main__':
     main()
+

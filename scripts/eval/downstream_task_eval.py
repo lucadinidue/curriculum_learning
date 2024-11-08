@@ -69,16 +69,21 @@ def plot_results(res_df, task, output_path, max_checkpoint=None, metric_name=Non
     sorted_models = sorted(list(res_df['model'].unique()), reverse=True)
     if max_checkpoint is not None:
         res_df = res_df[res_df['checkpoint'] <= max_checkpoint]
-    for metric in res_df['metric'].unique():
+
+    metrics = list(res_df['metric'].unique())
+    _, axes = plt.subplots(len(metrics), 1, figsize=(10, 7*len(metrics)))
+    if len(metrics) == 1:
+        axes = [axes]
+    
+    for idx, metric in enumerate(metrics):
         metric_df = res_df[res_df['metric'] == metric]
-        plt.figure()
         if max_checkpoint is None:
             plt.axvline(39063, color='white', linestyle='--')
             plt.axvline(39063*2, color='white', linestyle='--')
-        sns.lineplot(data=metric_df, x='checkpoint', hue='model', y='score', marker='o', hue_order=sorted_models, palette='Paired')
-        plt.title(f'{task} - {metric_name if metric_name is not None else metric}')
-        plt.savefig(f'{output_path}_{metric}.png') 
-        plt.show() 
+        sns.lineplot(data=metric_df, x='checkpoint', hue='model', y='score', marker='o', hue_order=sorted_models, palette='Paired', ax=axes[idx])
+        axes[idx].set_title(f'{task} - {metric_name if metric_name is not None else metric}')
+    plt.savefig(f'{output_path}.png') 
+    plt.show() 
 
 
 def main():
@@ -90,7 +95,7 @@ def main():
 
     average_metrics = True if args.downstream_task == 'sentiment' else False
     res_df = get_task_results(args.downstream_task, args.model_size, average_metrics=average_metrics)
-    plot_results(res_df, args.downstream_task, args.output_path, metric_name='avg f1')
+    plot_results(res_df, args.downstream_task, args.output_path)#, metric_name='avg f1')
 
 if __name__ == '__main__':
     main()

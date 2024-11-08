@@ -1,0 +1,71 @@
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import argparse
+import os
+
+sns.set_style("darkgrid")
+
+def score_model(src_path):
+    scores_df = pd.read_csv(src_path)
+    return scores_df['plausibility'].tolist(), scores_df['perplexity'].tolist()
+    # avg_plausibility = scores_df['plausibility'].mean()
+    # avg_perplexity = scores_df['perplexity'].mean()
+    # return avg_plausibility, avg_perplexity
+
+def add_to_res_dict(res_dict, model, checkpoint, metric, score, dataset):
+    res_dict['model'].append(model)
+    res_dict['checkpoint'].append(checkpoint)
+    res_dict['metric'].append(metric)
+    res_dict['score'].append(score)
+    res_dict['dataset'].append(dataset)
+
+
+def load_perplexity_df(src_dir, model_size):
+    res_dict = {'model': [], 'checkpoint':[], 'metric': [], 'score':[], 'dataset':[]}
+    for dataset in ['wikipedia', 'treebank']:
+        for model_name in os.listdir(src_dir):
+            if model_size not in model_name:
+                continue
+            model_dir = os.path.join(src_dir, dataset, model_name)
+            for checkpoint_file_name in os.listdir(model_dir):
+                
+                checkpoint_num = int(checkpoint_file_name.split('-')[-1][:-4])
+                checkpoint_path = os.path.join(model_dir, checkpoint_file_name)
+
+                plausibility, perplexity = score_model(checkpoint_path)
+                for pl, pp in zip(plausibility, perplexity):
+                    add_to_res_dict(res_dict, model_name, checkpoint_num, 'plausibility', pl, dataset)
+                    add_to_res_dict(res_dict, model_name, checkpoint_num, 'perplexity', pp, dataset)        
+    return pd.DataFrame.from_dict(res_dict)
+
+def plot_results(res_df, output_path, min_checkpoint=None):
+    for metric in sorted(list(res_df['metric'].unique())):
+        metric_df = res_df[res_df['metric'] == metric]
+        if min_checkpoint is not None:
+            metric_df = metric_df[metric_df['checkpoint'] >= min_checkpoint]
+        ordered_models = sorted(res_df['model'].unique().tolist(), reverse=True)
+
+        _, axes = plt.subplots(2, 1, figsize=(10, 15))
+
+        for idx, dataset in enumerate(['treebank', 'wikipedia']):
+            dataset_df = metric_df[metric_df['dataset'] == dataset]
+            sns.lineplot(data=dataset_df, x='checkpoint', y='score', hue='model', hue_order=ordered_models, palette='Paired', marker='o', legend=True, ax=axes[idx])
+            axes[idx].set_title(f'{metric}, {dataset}')
+        plt.savefig(f'{output_path}_{metric}.png') 
+        plt.show()
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-m', '--model_size', type=str, choices=['small', 'medium', 'base'])
+    parser.add_argument('-o', '--output_path', type=str)
+    args = parser.parse_args()
+
+    src_dir = 'data/perplexity/'
+    res_df = load_perplexity_df(src_dir, args.model_size)
+    plot_results(res_df, args.output_path)
+
+if __name__ == '__main__':
+    main()
+
