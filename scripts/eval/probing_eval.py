@@ -27,27 +27,29 @@ def add_to_res_dict(res_dict, model, checkpoint, feature, layer, score):
     res_dict['score'].append(score)
 
 
-def load_res_df(src_dir):
+def load_res_df(src_dir, res_df):
     res_dict = {'model': [], 'checkpoint':[], 'feature': [], 'layer':[], 'score':[]}
 
     for model_name in os.listdir(src_dir):
         model_dir = os.path.join(src_dir, model_name)
         for checkpoint_dir_name in sorted(os.listdir(model_dir)):
             checkpoint_num = int(checkpoint_dir_name.split('-')[-1])
-            checkpoint_dir = os.path.join(model_dir, checkpoint_dir_name)
-            try:
-                for layer in os.listdir(checkpoint_dir):
-                    layer_dir = os.path.join(checkpoint_dir, layer)
-                    for feature_file_name in os.listdir(layer_dir):
-                        feature = feature_file_name[:-4]
-                        feature_file_path = os.path.join(layer_dir, feature_file_name)
-                        score = score_model(feature_file_path)
-                        add_to_res_dict(res_dict, model_name, checkpoint_num, feature, int(layer)+1, score)
-            except Exception as e:
-                print(e)
-                print(checkpoint_dir)
+            already_computed = ((res_df['model'] == model_name) & (res_df['checkpoint'] == checkpoint_num)).any()
+            if not already_computed:
+                checkpoint_dir = os.path.join(model_dir, checkpoint_dir_name)
+                try:
+                    for layer in os.listdir(checkpoint_dir):
+                        layer_dir = os.path.join(checkpoint_dir, layer)
+                        for feature_file_name in os.listdir(layer_dir):
+                            feature = feature_file_name[:-4]
+                            feature_file_path = os.path.join(layer_dir, feature_file_name)
+                            score = score_model(feature_file_path)
+                            add_to_res_dict(res_dict, model_name, checkpoint_num, feature, int(layer)+1, score)
+                except Exception as e:
+                    print(e)
+                    print(checkpoint_dir)
     
-    return pd.DataFrame.from_dict(res_dict)
+    return pd.concat([res_df, pd.DataFrame.from_dict(res_dict)])
 
 def print_features_scores(res_df, output_path, legend_path=None, max_checkpoint=None):
     sorted_models = sorted(list(res_df['model'].unique()), reverse=True)
@@ -88,15 +90,24 @@ def print_features_scores(res_df, output_path, legend_path=None, max_checkpoint=
         plt.show()
 
 
+def load_computed_correlations(src_path):
+    if os.path.exists(src_path):
+        return pd.read_csv(src_path, index_col=0)
+    else:
+        return pd.DataFrame(['model', 'checkpoint', 'feature', 'layer', 'score'])
+
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input_directory', type=str, default='data/probing_results/pretrained')
+    parser.add_argument('-c', '--correlations_path', type=str, default=None)
     parser.add_argument('-o', '--output_path', type=str)
     parser.add_argument('-l', '--legend_path', type=str, default=None)
     args = parser.parse_args()
 
-    res_df = load_res_df(args.input_directory)
+    already_computed_df = load_computed_correlations(args.correlations_path)
+    res_df = load_res_df(args.input_directory, already_computed_df)
+    res_df.to_csv(args.correlations_path)
     print_features_scores(res_df, args.output_path, args.legend_path, max_checkpoint=None)
 
 if __name__ == '__main__':
