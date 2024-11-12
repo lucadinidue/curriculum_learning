@@ -91,8 +91,8 @@ def print_features_scores(res_df, output_path, legend_path=None, max_checkpoint=
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input_directory', type=str, default='../../data/probing_results/pretrained')
-    parser.add_argument('-o', '--ouput_path', type=str)
+    parser.add_argument('-i', '--input_directory', type=str, default='data/probing_results/pretrained')
+    parser.add_argument('-o', '--output_path', type=str)
     parser.add_argument('-l', '--legend_path', type=str, default=None)
     args = parser.parse_args()
 
