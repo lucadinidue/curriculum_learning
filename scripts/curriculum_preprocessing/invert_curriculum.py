@@ -8,9 +8,9 @@ def main():
 
     output_path = args.input_file[:-len('.csv')]+'_inverted.csv'
 
-    df = pd.read_csv(args.input_file)
+    df = pd.read_csv(args.input_file, header=0)
     df = df.iloc[::-1]
-    df.to_csv(output_path, index=False)   
+    df.to_csv(output_path, index=False)
 
 if __name__ == '__main__':
     main()

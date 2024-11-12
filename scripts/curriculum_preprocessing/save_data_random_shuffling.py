@@ -32,20 +32,22 @@ def extract_sentences(dataset_path:str, out_path:str):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--sample_idx', type=int)
+    parser.add_argument('-s', '--seed', type=int, default=None)
     args = parser.parse_args()
 
-    seed = random.randint(0, 1000)
+    if args.seed is None:
+      args.seed = random.randint(0, 1000)
 
     conllu_path = f'data/dataset_samples/sample_{args.sample_idx}.conllu'
     sentences_path = f'data/dataset_samples/sample_{args.sample_idx}_sentences.csv'
-    output_path = f'data/datasets/train_{args.sample_idx}_random_{seed}.csv'
+    output_path = f'data/datasets/train_{args.sample_idx}_random_{args.seed}.csv'
 
     if not os.path.exists(sentences_path):
         extract_sentences(conllu_path, sentences_path)
 
     df = load_dataset_from_csv(sentences_path)
-    # df = df.sample(frac=1, random_state=seed)
-    df.to_csv(output_path, index=False)   
+    df = df.sample(frac=1, random_state=args.seed)
+    df.to_csv(output_path, index=False)
 
 
 if __name__ == '__main__':

@@ -26,6 +26,8 @@ import math
 import os
 import sys
 sys.path.append(os.path.abspath('.'))
+os.environ['WANDB_DISABLED'] = 'true'
+
 
 from dataclasses import dataclass, field
 from itertools import chain
@@ -685,11 +687,13 @@ def main():
         else:
             kwargs["dataset"] = data_args.dataset_name
 
-    if training_args.push_to_hub:
-        trainer.push_to_hub(**kwargs)
-    else:
-        trainer.create_model_card(**kwargs)
+    #if training_args.push_to_hub:
+    #    trainer.push_to_hub(**kwargs)
+    #else:
+    trainer.create_model_card(**kwargs)
 
+
+    exit(0)
 
 def _mp_fn(index):
     # For xla_spawn (TPUs)
