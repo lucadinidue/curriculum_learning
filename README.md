@@ -11,23 +11,23 @@ By Luc(i?)a
 
 ## Things to do
  
-|                | Probing | PPL Wiki | PPL Treebank | Sentiment | Complexity | POS Tagging | 
-|----------------|---------|----------|--------------|-----------|------------|-------------| 
+|                | Probing | PPL Wiki | PPL Treebank | Sentiment | Complexity | POS Tagging |
+|----------------|---------|----------|--------------|-----------|------------|-------------|
 | Orig           | X       | X        | X            | X         | X          | X           |
 | Orig_I         | X       | X        | X            | X         | X          | X           |
-| Rand42         |         |          |              |           |            |             |
-| Rand42_I       |         |          |              |           |            |             |
-| RandPI         |         |          |              |           |            |             |
+| Rand42         | X       |          |              |           |            |             |
+| Rand42_I       | X       |          |              |           |            |             |
+| RandPI         | X       |          |              |           |            |             |
 | RandPI_I       |         |          |              |           |            |             |
-| RandR2_I       | X       |          |              |           |            |             |
+| RandR2         | X       |          |              |           |            |             |
 | RandR2_I       |         |          |              |           |            |             |
-| RandX_I        |         |          |              |           |            |             |
+| RandX          |         |          |              |           |            |             |
 | RandX_I        |         |          |              |           |            |             |
 | Gulpease       | X       | X        | X            | X         | X          | X           |
 | Gulpease_I     | X       | X        | X            | X         | X          | X           |
 | Sentence_len   | X       | X        | X            |           |            |             |
 | Sentence_len_I | X       | X        | X            |           |            |             |
-| Readit         |         |          |              |           |            |             |
+| Readit         | X       |          |              |           |            |             |
 | Readit_I       |         |          |              |           |            |             |
 
 Representations'space
