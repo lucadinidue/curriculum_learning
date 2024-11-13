@@ -1,3 +1,4 @@
+from utils import get_seaborn_palette
 from scipy.stats import spearmanr
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -31,6 +32,7 @@ def load_res_df(src_dir, res_df):
     res_dict = {'model': [], 'checkpoint':[], 'feature': [], 'layer':[], 'score':[]}
 
     for model_name in os.listdir(src_dir):
+        print(model_name)
         model_dir = os.path.join(src_dir, model_name)
         for checkpoint_dir_name in sorted(os.listdir(model_dir)):
             checkpoint_num = int(checkpoint_dir_name.split('-')[-1])
@@ -53,7 +55,7 @@ def load_res_df(src_dir, res_df):
 
 def print_features_scores(res_df, output_path, legend_path=None, max_checkpoint=None):
     sorted_models = sorted(list(res_df['model'].unique()), reverse=True)
-
+    palette = get_seaborn_palette(len(sorted_models))
     if max_checkpoint is not None:
         res_df = res_df[res_df['checkpoint'] <= max_checkpoint]
         
@@ -69,7 +71,7 @@ def print_features_scores(res_df, output_path, legend_path=None, max_checkpoint=
             vmin = res_df[res_df['feature'] == feature]['score'].min()
             vmax = res_df[res_df['feature'] == feature]['score'].max()
             feature_df = res_df[(res_df['feature'] == feature) & (res_df['layer'] == layer)]
-            sns.lineplot(data=feature_df, x='checkpoint', y='score', hue='model', marker='o', hue_order=sorted_models, palette='Paired', ax=axes[feat_idx][layer_idx], legend=False)
+            sns.lineplot(data=feature_df, x='checkpoint', y='score', hue='model', marker='o', hue_order=sorted_models, palette=palette, ax=axes[feat_idx][layer_idx], legend=False)
             axes[feat_idx][layer_idx].set_title(f'{feature}, layer {layer}')
             for layer_idx in range(len(layers)):
                 axes[feat_idx][layer_idx].set_ylim(vmin-0.05, vmax+0.05)
@@ -79,7 +81,7 @@ def print_features_scores(res_df, output_path, legend_path=None, max_checkpoint=
 
     if legend_path is not None:
         # legend
-        legend_plot = sns.lineplot(data=feature_df, x='checkpoint', y='score', hue='model', marker='o', hue_order=sorted_models, palette='Paired')
+        legend_plot = sns.lineplot(data=feature_df, x='checkpoint', y='score', hue='model', marker='o', hue_order=sorted_models, palette=palette)
         handles, labels = legend_plot.get_legend_handles_labels()
         plt.close()
         plt.figure()
@@ -92,6 +94,7 @@ def print_features_scores(res_df, output_path, legend_path=None, max_checkpoint=
 
 def load_computed_correlations(src_path):
     if os.path.exists(src_path):
+        print('Loaded correlations.')
         return pd.read_csv(src_path, index_col=0)
     else:
         return pd.DataFrame(['model', 'checkpoint', 'feature', 'layer', 'score'])
@@ -108,6 +111,7 @@ def main():
     already_computed_df = load_computed_correlations(args.correlations_path)
     res_df = load_res_df(args.input_directory, already_computed_df)
     res_df.to_csv(args.correlations_path)
+    print('Computing plot')
     print_features_scores(res_df, args.output_path, args.legend_path, max_checkpoint=None)
 
 if __name__ == '__main__':
