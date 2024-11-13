@@ -15,20 +15,21 @@ By Luc(i?)a
 |----------------|---------|----------|--------------|-----------|------------|-------------|
 | Orig           | X       | X        | X            | X         | X          | X           |
 | Orig_I         | X       | X        | X            | X         | X          | X           |
-| Rand42         | X       |          |              |           |            |             |
-| Rand42_I       | X       |          |              |           |            |             |
-| RandPI         | X       |          |              |           |            |             |
-| RandPI_I       |         |          |              |           |            |             |
-| RandR2         | X       |          |              |           |            |             |
-| RandR2_I       |         |          |              |           |            |             |
+| Rand42         | X       | X        | X            |           |            |             |
+| Rand42_I       | X       | X        | X            |           |            |             |
+| RandPI         | X       | X        | X            |           |            |             |
+| RandPI_I       | X       | X        | X            |           |            |             |
+| RandR2         | X       | X        | X            |           |            |             |
+| RandR2_I       | X       | X        | X            |           |            |             |
 | RandX          |         |          |              |           |            |             |
 | RandX_I        |         |          |              |           |            |             |
 | Gulpease       | X       | X        | X            | X         | X          | X           |
 | Gulpease_I     | X       | X        | X            | X         | X          | X           |
 | Sentence_len   | X       | X        | X            |           |            |             |
 | Sentence_len_I | X       | X        | X            |           |            |             |
-| Readit         | X       |          |              |           |            |             |
-| Readit_I       |         |          |              |           |            |             |
+| Readit         | X       | X        | X            |           |            |             |
+| Readit_I       | X       | X        | X            |           |            |             |
+
 
 Representations'space
 
