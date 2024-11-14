@@ -41,7 +41,7 @@ Representations'space
 | Rand42_I       |         |          |              |           |            |             |
 | RandPI         |         |          |              |           |            |             |
 | RandPI_I       |         |          |              |           |            |             |
-| RandR2         |X        | X        |              |           |            |             |
+| RandR2         |X        | X        |    x          |           |            |             |
 | RandR2_I       |         |          |              |           |            |             |
 | RandX_I        |         |          |              |           |            |             |
 | RandX_I        |         |          |              |           |            |             |
