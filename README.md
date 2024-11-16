@@ -41,7 +41,7 @@ Representations'space
 | Rand42_I       |         |          |              |           |            |             |
 | RandPI         |         |          |              |           |            |             |
 | RandPI_I       |         |          |              |           |            |             |
-| RandR2         |X        |   X      |   x          |           |            |X            |
+| RandR2         |X        |   X      |   x          |           |    X       |X            |
 | RandR2_I       |         |          |              |           |            |             |
 | RandX_I        |         |          |              |           |            |             |
 | RandX_I        |         |          |              |           |            |             |
@@ -50,6 +50,6 @@ Representations'space
 | Sentence_len   |X        |   X      |   X          |  X        |    X       | X           |
 | Sentence_len_I |X        |   X      |   x          |           |    x       | X           |
 | Readit         |X        |   X      |   X          |           |    X       | X           |
-| Readit_I       |X        |   X      |   X          |           |    X       |             |
+| Readit_I       |X        |   X      |   X          |           |    X       | X           |
 
 
