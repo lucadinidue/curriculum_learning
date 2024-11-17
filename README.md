@@ -31,12 +31,13 @@ By Luc(i?)a
 | Readit_I       | X       | X        | X            |           |            |             |
 
 
-Representations'space
+Representations'space 🚀
+
 
 |                | IsoScore | Lin_ID  | NonLin_ID    | cos_sim   | varex       | Partition (?) | 
 |----------------|---------|----------|--------------|-----------|------------|-------------| 
 | Orig           | X       |   X      | X            | X         | X          |             |
-| Orig_I         | X       |   X      | X            | X         | X          |             |
+| Orig_I         | X       |   X      | X            | X         | X          |  X          |
 | Rand42         |         |          |              |           |            |             |
 | Rand42_I       |         |          |              |           |            |             |
 | RandPI         |         |          |              |           |            |             |
