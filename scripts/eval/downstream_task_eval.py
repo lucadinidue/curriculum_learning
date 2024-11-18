@@ -1,3 +1,4 @@
+from utils import get_seaborn_palette
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -67,6 +68,7 @@ def get_task_results(downstream_task, model_size, average_metrics=False):
 
 def plot_results(res_df, task, output_path, max_checkpoint=None, metric_name=None):
     sorted_models = sorted(list(res_df['model'].unique()), reverse=True)
+    palette = get_seaborn_palette(len(sorted_models))
     if max_checkpoint is not None:
         res_df = res_df[res_df['checkpoint'] <= max_checkpoint]
 
@@ -80,7 +82,7 @@ def plot_results(res_df, task, output_path, max_checkpoint=None, metric_name=Non
         if max_checkpoint is None:
             plt.axvline(39063, color='white', linestyle='--')
             plt.axvline(39063*2, color='white', linestyle='--')
-        sns.lineplot(data=metric_df, x='checkpoint', hue='model', y='score', marker='o', hue_order=sorted_models, palette='Paired', ax=axes[idx])
+        sns.lineplot(data=metric_df, x='checkpoint', hue='model', y='score', marker='o', hue_order=sorted_models, palette=palette, ax=axes[idx])
         axes[idx].set_title(f'{task} - {metric_name if metric_name is not None else metric}')
     plt.savefig(f'{output_path}.png') 
     plt.show() 
