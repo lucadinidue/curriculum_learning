@@ -40,19 +40,19 @@ Representations'space 🚀
 |----------------|---------|----------|--------------|-----------|------------|-------------| 
 | Orig           | X       |   X      | X            | X         | X          |             |
 | Orig_I         | X       |   X      | X            | X         | X          |  X          |
-| Rand42         |         |   X      |              |           |            |             |
-| Rand42_I       |         |   X      |              |           |            |             |
+| Rand42         | X       |   X      |              | X         |            |             |
+| Rand42_I       | X       |   X      |              |           |            |             |
 | RandPI         |         |          |              |           |            |             |
 | RandPI_I       |         |          |              |           |            |             |
 | RandR2         |X        |   X      |   x          |           |    X       |X            |
-| RandR2_I       |         |          |              |           |            |             |
+| RandR2_I       |X        |   X      |              |           |            |             |
 | RandX_I        |         |          |              |           |            |             |
 | RandX_I        |         |          |              |           |            |             |
 | Gulpease       |X        |   X      |   X          |  X        |    X       |             |
 | Gulpease_I     |X        |   X      |   X          |  X        |    X       |             |
 | Sentence_len   |X        |   X      |   X          |  X        |    X       | X           |
-| Sentence_len_I |X        |   X      |   x          |           |    x       | X           |
-| Readit         |X        |   X      |   X          |           |    X       | X           |
+| Sentence_len_I |X        |   X      |   x          |  X        |    x       | X           |
+| Readit         |X        |   X      |   X          |  X        |    X       | X           |
 | Readit_I       |X        |   X      |   X          |           |    X       | X           |
 
 
