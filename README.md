@@ -40,17 +40,17 @@ Representations'space 🚀
 |----------------|---------|----------|--------------|-----------|------------|-------------| 
 | Orig           | X       |   X      | X            | X         | X          |             |
 | Orig_I         | X       |   X      | X            | X         | X          |  X          |
-| Rand42         | X       |   X      |              | X         |            |             |
-| Rand42_I       | X       |   X      |              | X         |            |             |
-| RandPI         |         |   x      |              |           |            |             |
-| RandPI_I       |         |          |              |           |            |             |
-| RandR2         |X        |   X      |   x          | X         |    X       |X            |
-| RandR2_I       |X        |   X      |              | X         |            |             |
+| Rand42         | X       |   X      |              | X         | X          |             |
+| Rand42_I       | X       |   X      |              | X         | X          |             |
+| RandPI         | X       |   x      |  X           | X         | X          |             |
+| RandPI_I       | X       |   X      |              | X         | X          |             |
+| RandR2         |X        |   X      |  x           | X         | X          |X            |
+| RandR2_I       |X        |   X      |              | X         |            |X            |
 | RandX_I        |         |          |              |           |            |             |
 | RandX_I        |         |          |              |           |            |             |
 | Gulpease       |X        |   X      |   X          |  X        |    X       |             |
 | Gulpease_I     |X        |   X      |   X          |  X        |    X       |             |
-| Sentence_len   |X        |   X      |   X          |  X        |    X       | X           |
+| Sentence_len   |X        |          |   X          |  X        |    X       | X           |
 | Sentence_len_I |X        |   X      |   x          |  X        |    x       | X           |
 | Readit         |X        |   X      |   X          |  X        |    X       | X           |
 | Readit_I       |X        |   X      |   X          |  X        |    X       | X           |
