@@ -41,7 +41,7 @@ Representations'space 🚀
 | Orig           | X       |   X      | X            | X         | X          |             |
 | Orig_I         | X       |   X      | X            | X         | X          |  X          |
 | Rand42         | X       |   X      |  X           | X         | X          |  X          |
-| Rand42_I       | X       |   X      |  X           | X         | X          |             |
+| Rand42_I       | X       |   X      |  X           | X         | X          | X           |
 | RandPI         | X       |   x      |  X           | X         | X          | X           |
 | RandPI_I       | X       |   X      |  X           | X         | X          | X           |
 | RandR2         |X        |   X      |  x           | X         | X          |X            |
