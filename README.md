@@ -50,7 +50,7 @@ Representations'space 🚀
 | RandX_I        |         |          |              |           |            |             |
 | Gulpease       |X        |   X      |   X          |  X        |    X       |             |
 | Gulpease_I     |X        |   X      |   X          |  X        |    X       |             |
-| Sentence_len   |X        |          |   X          |  X        |    X       | X           |
+| Sentence_len   |X        |   X      |   X          |  X        |    X       | X           |
 | Sentence_len_I |X        |   X      |   x          |  X        |    x       | X           |
 | Readit         |X        |   X      |   X          |  X        |    X       | X           |
 | Readit_I       |X        |   X      |   X          |  X        |    X       | X           |
