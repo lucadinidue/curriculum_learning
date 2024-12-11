@@ -23,8 +23,8 @@ Model performances 🏋️
 | RandPI_I       | X       | X        | X            | X         | X          | X           |
 | RandR2         | X       | X        | X            | X         | X          | X           |
 | RandR2_I       | X       | X        | X            | X         | X          | X           |
-| RandX          |         |          |              |           |            |             |
-| RandX_I        |         |          |              |           |            |             |
+| RandG          |         |          |              |           |            |             |
+| RandG_I        |         |          |              |           |            |             |
 | Gulpease       | X       | X        | X            | X         | X          | X           |
 | Gulpease_I     | X       | X        | X            | X         | X          | X           |
 | Sentence_len   | X       | X        | X            | X         | X          | X           |
@@ -46,8 +46,8 @@ Representations'space 🚀
 | RandPI_I       | X       |   X      |  X           | X         | X          | X           |
 | RandR2         |X        |   X      |  x           | X         | X          |X            |
 | RandR2_I       |X        |   X      |  X           | X         | X          |X            |
-| RandX_I        |         |          |              |           |            |             |
-| RandX_I        |         |          |              |           |            |             |
+| RandG          | X       |   X      |              |           |            |             |
+| RandG_I        |         |          |              |           |            |             |
 | Gulpease       |X        |   X      |   X          |  X        |    X       |             |
 | Gulpease_I     |X        |   X      |   X          |  X        |    X       |             |
 | Sentence_len   |X        |   X      |   X          |  X        |    X       | X           |
