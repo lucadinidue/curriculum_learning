@@ -46,7 +46,7 @@ Representations'space 🚀
 | RandPI_I       | X       |   X      |  X           | X         | X          | X           |
 | RandR2         |X        |   X      |  x           | X         | X          |X            |
 | RandR2_I       |X        |   X      |  X           | X         | X          |X            |
-| RandG          | X       |   X      |              |           |            |             |
+| RandG          |X        |   X      |  X           |           | X          |             |
 | RandG_I        |         |          |              |           |            |             |
 | Gulpease       |X        |   X      |   X          |  X        |    X       |             |
 | Gulpease_I     |X        |   X      |   X          |  X        |    X       |             |
