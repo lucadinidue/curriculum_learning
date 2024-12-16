@@ -47,7 +47,7 @@ Representations'space 🚀
 | RandR2         |X        |   X      |  x           | X         | X          |X            |
 | RandR2_I       |X        |   X      |  X           | X         | X          |X            |
 | RandG          |X        |   X      |  X           | X         | X          |X            |
-| RandG_I        |         |          |              |           |            |             |
+| RandG_I        |X        |   X      |  X           |  X        |    X       |X            |
 | Gulpease       |X        |   X      |   X          |  X        |    X       |             |
 | Gulpease_I     |X        |   X      |   X          |  X        |    X       |             |
 | Sentence_len   |X        |   X      |   X          |  X        |    X       | X           |
