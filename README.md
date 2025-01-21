@@ -34,7 +34,7 @@ Model performances 🏋️
 
 
 Representations'space 🚀
-
+SEED42
 
 |                | IsoScore | Lin_ID  | NonLin_ID    | cos_sim   | varex       | Partition (?) | 
 |----------------|---------|----------|--------------|-----------|------------|-------------| 
@@ -54,5 +54,7 @@ Representations'space 🚀
 | Sentence_len_I |X        |   X      |   x          |  X        |    x       | X           |
 | Readit         |X        |   X      |   X          |  X        |    X       | X           |
 | Readit_I       |X        |   X      |   X          |  X        |    X       | X           |
+
+SEED995
 
 
