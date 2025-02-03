@@ -34,7 +34,7 @@ Model performances 🏋️
 
 
 Representations'space 🚀
-SEED42
+SEED42 🐭
 
 |                | IsoScore | Lin_ID  | NonLin_ID    | cos_sim   | varex       | Partition (?) | 
 |----------------|---------|----------|--------------|-----------|------------|-------------| 
@@ -55,7 +55,7 @@ SEED42
 | Readit         |X        |   X      |   X          |  X        |    X       | X           |
 | Readit_I       |X        |   X      |   X          |  X        |    X       | X           |
 
-SEED995
+SEED995 🕵️‍♀️
 
 Here’s a cleaner and better-organized version of the table:
 
@@ -71,11 +71,11 @@ Here’s a cleaner and better-organized version of the table:
 | **RandR2_I**      |              |            |               |             |           |                    |  
 | **RandG**         |              |            |               |             |           |                    |  
 | **RandG_I**       |              |            |               |             |           |                    |  
-| **Gulpease**      |              |            |               |             |           |                    |  
+| **Gulpease**      | x            |   x        |   x           |  x          | x         |                    |  
 | **Gulpease_I**    |              |            |               |             |           |                    |  
-| **Sentence_len**  |              |            |               |             |           |                    |  
+| **Sentence_len**  |  x           |    x       |             x |   x         | x         |                    |  
 | **Sentence_len_I**|              |            |               |             |           |                    |  
-| **Readit**        |              |            |               |             |           |                    |  
+| **Readit**        |  x           |   x        |    x          |    x        |     x     |                    |  
 | **Readit_I**      |              |            |               |             |           |                    |
 
 
