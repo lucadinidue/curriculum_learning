@@ -33,70 +33,26 @@ Model performances 🏋️
 | Readit_I       | X       | X        | X            | X         | X          | X           |
 
 
-Representations'space 🚀
-SEED42 🐭
+# Representations' Space 🚀
+SEED42 🐭 🐭 SEED995 🐶 🕵️ Seed 755 🐱
 
-|                | IsoScore | Lin_ID  | NonLin_ID    | cos_sim   | varex       | Partition (?) | 
-|----------------|---------|----------|--------------|-----------|------------|-------------| 
-| Orig           | X       |   X      | X            | X         | X          |             |
-| Orig_I         | X       |   X      | X            | X         | X          |  X          |
-| Rand42         | X       |   X      |  X           | X         | X          |  X          |
-| Rand42_I       | X       |   X      |  X           | X         | X          | X           |
-| RandPI         | X       |   x      |  X           | X         | X          | X           |
-| RandPI_I       | X       |   X      |  X           | X         | X          | X           |
-| RandR2         |X        |   X      |  x           | X         | X          |X            |
-| RandR2_I       |X        |   X      |  X           | X         | X          |X            |
-| RandG          |X        |   X      |  X           | X         | X          |X            |  
-| RandG_I        |X        |   X      |  X           |  X        |    X       |X            |
-| Gulpease       |X        |   X      |   X          |  X        |    X       |             |
-| Gulpease_I     |X        |   X      |   X          |  X        |    X       |             |
-| Sentence_len   |X        |   X      |   X          |  X        |    X       | X           |
-| Sentence_len_I |X        |   X      |   x          |  X        |    x       | X           |
-| Readit         |X        |   X      |   X          |  X        |    X       | X           |
-| Readit_I       |X        |   X      |   X          |  X        |    X       | X           |
-
-SEED995 🕵️‍♀️
-
-
-| **Metric**       | **IsoScore** | **Lin_ID** | **NonLin_ID** | **cos_sim** | **varex** | **Partition (?)** |  
-|-------------------|--------------|------------|---------------|-------------|-----------|--------------------|  
-| **Orig**          | x            | x          | x             | x           | x         | x                  |  
-| **Orig_I**        |              |            |               |             |           |                    |  
-| **Rand42**        |              |            |               |             |           |                    |  
-| **Rand42_I**      |              |            |               |             |           |                    |  
-| **RandPI**        |              |            |               |             |           |                    |  
-| **RandPI_I**      |              |            |               |             |           |                    |  
-| **RandR2**        |              |            |               |             |           |                    |  
-| **RandR2_I**      |              |            |               |             |           |                    |  
-| **RandG**         |              |            |               |             |           |                    |  
-| **RandG_I**       |              |            |               |             |           |                    |     
-| **Gulpease**      | x            |   x        |   x           |  x          | x         |                    |  
-| **Gulpease_I**    |              |            |               |             |           |                    |  
-| **Sentence_len**  |  x           |    x       |             x |   x         | x         |                    |  
-| **Sentence_len_I**|              |            |               |             |           |                    |  
-| **Readit**        |  x           |   x        |    x          |    x        |     x     |                    |  
-| **Readit_I**      |              |            |               |             |           |                    |
-
-
-Seed 755 🐱
-
-| **Metric**       | **IsoScore** | **Lin_ID** | **NonLin_ID** | **cos_sim** | **varex** | **Partition (?)** |  
-|-------------------|--------------|------------|---------------|-------------|-----------|--------------------|  
-| **Orig**          | x            | x          |               | x           |           |                    |  
-| **Orig_I**        |              |            |               |             |           |                    |  
-| **Rand42**        |              |            |               |             |           |                    |  
-| **Rand42_I**      |              |            |               |             |           |                    |  
-| **RandPI**        |              |            |               |             |           |                    |  
-| **RandPI_I**      |              |            |               |             |           |                    |  
-| **RandR2**        |              |            |               |             |           |                    |  
-| **RandR2_I**      |              |            |               |             |           |                    |  
-| **RandG**         |              |            |               |             |           |                    |  
-| **RandG_I**       |              |            |               |             |           |                    |  
-| **Gulpease**      |              |            |               |             |           |                    |  
-| **Gulpease_I**    |              |            |               |             |           |                    |  
-| **Sentence_len**  |              |            |               |             |           |                    |  
-| **Sentence_len_I**|              |            |               |             |           |                    |  
-| **Readit**        |  x           |   x        |    x          |    x        |           |                    |  
-| **Readit_I**      |              |            |               |             |           |                    |
+|                | IsoScore     | Lin_ID       | NonLin_ID      | cos_sim       | varex         | Partition (?)   |
+|----------------|--------------|--------------|----------------|---------------|---------------|-----------------|
+| Orig           | 🐭  🐶 🐱    | 🐭  🐶 🐱     | 🐭   🐶  🐱    | 🐭   🐶 🐱    | 🐭   🐶 🐱  | 🐶              |
+| Orig_I         | 🐭 🐶        | 🐭 🐶         | 🐭             | 🐭   🐶        | 🐭 🐶       | 🐭              |
+| Rand42         | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            | 🐭              |
+| Rand42_I       | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            | 🐭              |
+| RandPI         | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            | 🐭              |
+| RandPI_I       | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            | 🐭              |
+| RandR2         | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            | 🐭              |
+| RandR2_I       | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            | 🐭              |
+| RandG          | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            | 🐭              |
+| RandG_I        | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            | 🐭              |
+| Gulpease       | 🐭  🐶 🐱    | 🐭  🐶 🐱     | 🐭   🐶 🐱     | 🐭   🐶 🐱    | 🐭  🐶 🐱   |                  |
+| Gulpease_I     | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            |                 |
+| Sentence_len   | 🐭  🐶       | 🐭  🐶       | 🐭 🐶          | 🐭 🐶         | 🐭  🐶        | 🐭              |
+| Sentence_len_I | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            | 🐭              |
+| Readit         | 🐭  🐶 🐱    | 🐭  🐶 🐱     | 🐭  🐶 🐱      | 🐭  🐶   🐱    | 🐭  🐶🐱    | 🐭 🐶          |
+| Readit_I       | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            | 🐭              |
 
 
