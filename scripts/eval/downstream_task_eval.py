@@ -55,11 +55,11 @@ def get_model_results(models_dir, model_name, downstream_task, average_metrics=F
     res_df = pd.DataFrame.from_dict(res_dict)
     return res_df
 
-def get_task_results(downstream_task, model_size, average_metrics=False):
+def get_task_results(downstream_task, model_size, model_seed, average_metrics=False):
     models_dir = f'models/downstream_tasks/{downstream_task}'
     res_df = []
     for model_name in os.listdir(models_dir):
-        if model_size in model_name:
+        if model_size in model_name and f'{model_seed}_train' in model_name:
             model_df = get_model_results(models_dir, model_name, downstream_task, average_metrics)
             model_df['model'] = model_name
             res_df.append(model_df)
@@ -91,13 +91,14 @@ def plot_results(res_df, task, output_path, max_checkpoint=None, metric_name=Non
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--downstream_task', choices=['sentiment', 'complexity', 'pos_tagging'])
-    parser.add_argument('-s', '--model_size', choices=['small', 'medium', 'base'])
-    parser.add_argument('-o', '--output_path', type=str)
+    parser.add_argument('-d', '--model_size', default='medium', choices=['small', 'medium', 'base'])
+    parser.add_argument('-s', '--model_seed', type=int, choices=[42, 755, 995])
     args = parser.parse_args()
 
+    output_path = f'results/seed_{args.model_seed}/bert_{args.model_size}_{args.downstream_task}'
     average_metrics = True if args.downstream_task == 'sentiment' else False
-    res_df = get_task_results(args.downstream_task, args.model_size, average_metrics=average_metrics)
-    plot_results(res_df, args.downstream_task, args.output_path)#, metric_name='avg f1')
+    res_df = get_task_results(args.downstream_task, args.model_size, args.model_seed, average_metrics=average_metrics)
+    plot_results(res_df, args.downstream_task, output_path)#, metric_name='avg f1')
 
 if __name__ == '__main__':
     main()
