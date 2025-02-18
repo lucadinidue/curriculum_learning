@@ -8,3 +8,4 @@ llm-foundry/*
 **/__pycache__
 models/*
 *pyc
+*ipynb
