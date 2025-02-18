@@ -34,12 +34,12 @@ Model performances 🏋️
 
 
 # Representations' Space 🚀
-SEED42 🐭 🐭 SEED995 🐶 🕵️ Seed 755 🐱
+SEED42 🐭  SEED995 🐶  Seed 755 🐱
 
 |                | IsoScore     | Lin_ID       | NonLin_ID      | cos_sim       | varex         | Partition (?)   |
 |----------------|--------------|--------------|----------------|---------------|---------------|-----------------|
-| Orig           | 🐭  🐶 🐱    | 🐭  🐶 🐱     | 🐭   🐶  🐱    | 🐭   🐶 🐱    | 🐭   🐶 🐱  | 🐶              |
-| Orig_I         | 🐭 🐶        | 🐭 🐶         | 🐭             | 🐭   🐶        | 🐭 🐶       | 🐭              |
+| Orig           | 🐭  🐶 🐱    | 🐭  🐶 🐱     | 🐭   🐶  🐱    | 🐭   🐶 🐱   | 🐭   🐶 🐱  | 🐶              |
+| Orig_I         | 🐭 🐶        | 🐭 🐶         | 🐭             | 🐭   🐶      | 🐭 🐶       | 🐭              |
 | Rand42         | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            | 🐭              |
 | Rand42_I       | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            | 🐭              |
 | RandPI         | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            | 🐭              |
@@ -50,7 +50,7 @@ SEED42 🐭 🐭 SEED995 🐶 🕵️ Seed 755 🐱
 | RandG_I        | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            | 🐭              |
 | Gulpease       | 🐭  🐶 🐱    | 🐭  🐶 🐱     | 🐭   🐶 🐱     | 🐭   🐶 🐱    | 🐭  🐶 🐱   |                  |
 | Gulpease_I     | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            |                 |
-| Sentence_len   | 🐭  🐶       | 🐭  🐶       | 🐭 🐶          | 🐭 🐶         | 🐭  🐶        | 🐭              |
+| Sentence_len   | 🐭  🐶 🐱    | 🐭  🐶 🐱    | 🐭 🐶  🐱      | 🐭 🐶   🐱    | 🐭  🐶 🐱     | 🐭              |
 | Sentence_len_I | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            | 🐭              |
 | Readit         | 🐭  🐶 🐱    | 🐭  🐶 🐱     | 🐭  🐶 🐱      | 🐭  🐶   🐱    | 🐭  🐶🐱    | 🐭 🐶          |
 | Readit_I       | 🐭           | 🐭           | 🐭             | 🐭            | 🐭            | 🐭              |
