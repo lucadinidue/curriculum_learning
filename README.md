@@ -39,6 +39,7 @@ Model performances 🏋️
 | Readit_I       | 🌱       | 🌱 🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑 | 🌱  🌷  🥑  | 🌱  🌷  🥑  |
 
 
+
 # Representations' Space 🚀
 
 |                | IsoScore     | Lin_ID       | NonLin_ID      | cos_sim       | varex         | Partition (?)   |
@@ -56,7 +57,7 @@ Model performances 🏋️
 | Gulpease       | 🌱  🌷 🥑    | 🌱  🌷 🥑     | 🌱   🌷 🥑     | 🌱   🌷 🥑    | 🌱  🌷 🥑   |                  |
 | Gulpease_I     | 🌱           | 🌱           | 🌱             | 🌱            | 🌱            |                 |
 | Sentence_len   | 🌱  🌷 🥑    | 🌱  🌷 🥑    | 🌱 🌷  🥑      | 🌱 🌷   🥑    | 🌱  🌷 🥑     | 🌱              |
-| Sentence_len_I | 🌱           | 🌱           | 🌱             | 🌱            | 🌱            | 🌱              |
+| Sentence_len_I | 🌱  🌷       | 🌱 🌷         | 🌱             | 🌱  🌷        | 🌱 🌷         | 🌱              |
 | Readit         | 🌱  🌷 🥑    | 🌱  🌷 🥑     | 🌱  🌷 🥑      | 🌱  🌷   🥑    | 🌱  🌷🥑    | 🌱 🌷          |
 | Readit_I       | 🌱           | 🌱           | 🌱             | 🌱            | 🌱            | 🌱              |
 
