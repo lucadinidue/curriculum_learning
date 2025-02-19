@@ -15,6 +15,8 @@ TASKS_METRICS = {
     'pos_tagging': ['f1', 'accuracy']
 }
 
+HUE_ORDER = ['sentence_length_inverted', 'sentence_length', 'readit_global_inverted', 'readit_global', 'gulpease_inverted', 'gulpease', 'random']
+
 
 def load_trainer_state(src_path):
     with open(src_path, 'r') as src_file:
@@ -55,19 +57,28 @@ def get_model_results(models_dir, model_name, downstream_task, average_metrics=F
     res_df = pd.DataFrame.from_dict(res_dict)
     return res_df
 
-def get_task_results(downstream_task, model_size, model_seed, average_metrics=False):
+def normalize_model_name(model_name, model_seed, average_random):
+    if model_seed is None:
+        model_name = '_'.join(model_name.split('_')[5:])
+    if average_random:
+        if 'rand' in model_name or 'orig' in model_name:
+            model_name = 'random'
+    return model_name
+
+def get_task_results(downstream_task, model_size, model_seed=None, average_random=False, average_metrics=False):
     models_dir = f'models/downstream_tasks/{downstream_task}'
     res_df = []
     for model_name in os.listdir(models_dir):
-        if model_size in model_name and f'{model_seed}_train' in model_name:
-            model_df = get_model_results(models_dir, model_name, downstream_task, average_metrics)
-            model_df['model'] = model_name
-            res_df.append(model_df)
+        if model_size in model_name:
+            if model_seed is None or f'{model_seed}_train' in model_name:
+                model_df = get_model_results(models_dir, model_name, downstream_task, average_metrics)
+                model_df['model'] = normalize_model_name(model_name, model_seed, average_random)
+                res_df.append(model_df)
     res_df = pd.concat(res_df)
     return res_df
 
-def plot_results(res_df, task, output_path, max_checkpoint=None, metric_name=None):
-    sorted_models = sorted(list(res_df['model'].unique()), reverse=True)
+def plot_results(res_df, task, output_path, average_random=False, max_checkpoint=None, metric_name=None):
+    sorted_models = HUE_ORDER if average_random else sorted(list(res_df['model'].unique()), reverse=True)
     palette = get_seaborn_palette(len(sorted_models))
     if max_checkpoint is not None:
         res_df = res_df[res_df['checkpoint'] <= max_checkpoint]
@@ -92,13 +103,17 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--downstream_task', choices=['sentiment', 'complexity', 'pos_tagging'])
     parser.add_argument('-d', '--model_size', default='medium', choices=['small', 'medium', 'base'])
-    parser.add_argument('-s', '--model_seed', type=int, choices=[42, 755, 995])
+    parser.add_argument('-s', '--model_seed', type=int, choices=[42, 755, 995, None])
+    parser.add_argument('-a', '--average_random', action='store_true')
     args = parser.parse_args()
 
-    output_path = f'results/seed_{args.model_seed}/bert_{args.model_size}_{args.downstream_task}'
+    if args.model_seed is not None:
+        output_path = f'results/seed_{args.model_seed}/bert_{args.model_size}_{args.downstream_task}'   
+    else:
+        output_path = f'results/bert_{args.model_size}_{args.downstream_task}'   
     average_metrics = True if args.downstream_task == 'sentiment' else False
-    res_df = get_task_results(args.downstream_task, args.model_size, args.model_seed, average_metrics=average_metrics)
-    plot_results(res_df, args.downstream_task, output_path)#, metric_name='avg f1')
+    res_df = get_task_results(args.downstream_task, args.model_size, model_seed=args.model_seed, average_random=args.average_random, average_metrics=average_metrics)
+    plot_results(res_df, args.downstream_task, output_path, average_random=args.average_random)#, metric_name='avg f1')
 
 if __name__ == '__main__':
     main()

@@ -9,8 +9,12 @@ def get_last_checkpoint(model_dir):
     return trainer_state['max_steps']
 
 
-def get_seaborn_palette(num_colors):
+def get_seaborn_palette(num_colors):    
+    if num_colors <= 10:
+        return sns.color_palette("Paired", num_colors)
+    
     paired_palette = sns.color_palette("Paired", 10)
+
     extra_colors = [
         (0.6, 0.85, 0.8), (0.3, 0.6, 0.55),     # Light and dark seafoam
         (1.0, 0.8, 0.7), (0.85, 0.45, 0.3),     # Light peach and deep terracotta
