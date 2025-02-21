@@ -58,7 +58,7 @@ Model performances 🏋️
 | Gulpease_I     | 🌱   🌷 🥑   | 🌱  🌷  🥑    | 🌱   🌷🥑      | 🌱  🌷  🥑    | 🌱   🌷🥑   |               |
 | Sentence_len   | 🌱  🌷 🥑    | 🌱  🌷 🥑    | 🌱 🌷  🥑      | 🌱 🌷   🥑    | 🌱  🌷 🥑     | 🌱             |
 | Sentence_len_I | 🌱  🌷       | 🌱 🌷         | 🌱             | 🌱  🌷        | 🌱 🌷         | 🌱            |
-| Readit         | 🌱  🌷 🥑    | 🌱  🌷 🥑     | 🌱  🌷 🥑      | 🌱  🌷   🥑    | 🌱  🌷🥑    | 🌱 🌷          |
-| Readit_I       | 🌱           | 🌱           | 🌱             | 🌱            | 🌱             | 🌱              |
+| Readit         | 🌱  🌷 🥑    | 🌱  🌷 🥑     | 🌱  🌷 🥑      | 🌱  🌷   🥑    | 🌱  🌷🥑    | 🌱          |
+| Readit_I       | 🌱   🌷       | 🌱  🌷        | 🌱  🌷          | 🌱  🌷         | 🌱   🌷     | 🌱              |
 
 
