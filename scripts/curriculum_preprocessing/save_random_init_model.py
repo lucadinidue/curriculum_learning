@@ -1,6 +1,8 @@
 from transformers import AutoModelForMaskedLM, set_seed,  BertConfig
 import argparse
+import random
 import json
+import os
 
 def load_model_config(config_path):
     with open(config_path, 'r') as config_file:
@@ -15,6 +17,13 @@ def main():
     parser.add_argument('-o', '--output_path', type=str)
     args = parser.parse_args()
 
+
+    if args.seed is None:
+        args.seed = random.randint(1, 1000)
+        print(args.seed)
+        args.output_path += f'_{args.seed}'
+        if os.path.exists(args.output_path):
+            exit(0)
     set_seed(args.seed)
 
     config = load_model_config(args.config_path)

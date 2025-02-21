@@ -14,7 +14,7 @@ import json
 import csv
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+#os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def save_tensor(tensor, out_dir):
@@ -45,7 +45,7 @@ def extract_representations(model, dataloader, output_dir):
     with torch.no_grad():
         for batch_cpu in tqdm(dataloader):
             batch = {key: value.to(device) for key, value in batch_cpu.items()}
-            hidden_states = model(**batch)['hidden_states']        
+            hidden_states = model(**batch)['hidden_states']
             non_pad_tokens = batch['attention_mask'].sum(axis=1)
             hidden_states = torch.stack(hidden_states, dim=1)
 
@@ -59,8 +59,7 @@ def extract_representations(model, dataloader, output_dir):
             average_hidden_states = average_hidden_states.transpose(0, 1)
             all_hidden_states = average_hidden_states if all_hidden_states is None else torch.cat(
                 (all_hidden_states, average_hidden_states), dim=1)
-            
-        
+
         save_tensor(all_hidden_states, output_dir)
 
 
@@ -79,7 +78,7 @@ def save_dataset_representations(model_path, tokenizer_path, train_path, test_pa
 
     test_dataloader = DataLoader(test_dataset, shuffle=False, collate_fn=default_data_collator,
                                     batch_size=batch_size)
-    
+
     extract_representations(model, train_dataloader, os.path.join(output_dir, 'train'))
     extract_representations(model, test_dataloader, os.path.join(output_dir, 'test'))
 
@@ -111,7 +110,7 @@ def do_probing_tasks(model_path, output_dir, tokenizer_path='models/bert_tokeniz
     if already_coputed(output_dir):
         print(f'Skipping {output_dir}')
         return
-    
+
     print(f'Computing {output_dir}')
 
     os.makedirs(os.path.join(output_dir, 'train'))
@@ -124,7 +123,7 @@ def do_probing_tasks(model_path, output_dir, tokenizer_path='models/bert_tokeniz
     num_layers = len(os.listdir(os.path.join(output_dir, 'train')))
 
     features = [col_name for col_name in train_df.columns.tolist() if col_name not in ['identifier', 'text']]
-    
+
 
     for layer in range(num_layers):
         os.mkdir(os.path.join(output_dir, str(layer)))
@@ -146,8 +145,8 @@ def do_probing_tasks(model_path, output_dir, tokenizer_path='models/bert_tokeniz
             predictions = regressor.predict(X_test)
 
             save_predictions(os.path.join(output_dir, str(layer), f'{feat}.tsv'), predictions, test_labels)
-    
-    
+
+
     shutil.rmtree(os.path.join(output_dir, 'train'))
     shutil.rmtree(os.path.join(output_dir, 'test'))
 
@@ -155,11 +154,11 @@ def do_probing_tasks(model_path, output_dir, tokenizer_path='models/bert_tokeniz
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--model_path', type=str)
-    parser.add_argument('-t', '--train_path', type=str, default='data/probing_data/train.tsv')
-    parser.add_argument('-e', '--test_path', type=str, default='data/probing_data/test.tsv')
+    parser.add_argument('-t', '--train_path', type=str, default='/leonardo_work/IscrC_AILP/curriculum_learning/data/probing_data/train.tsv')
+    parser.add_argument('-e', '--test_path', type=str, default='/leonardo_work/IscrC_AILP/curriculum_learning/data/probing_data/test.tsv')
     parser.add_argument('-o', '--output_dir', type=str, default=None)
-    parser.add_argument('-b', '--batch_size', type=int, default=16)
-    parser.add_argument('-k', '--tokenizer_path', type=str, default='models/bert_tokenizer')
+    parser.add_argument('-b', '--batch_size', type=int, default=128)
+    parser.add_argument('-k', '--tokenizer_path', type=str, default='/leonardo_work/IscrC_AILP/curriculum_learning/models/bert_tokenizer')
     args = parser.parse_args()
 
     last_training_step = get_last_checkpoint(args.model_path)
@@ -168,11 +167,11 @@ def main():
     for checkpoint_dir in os.listdir(args.model_path):
         checkpoint_path = os.path.join(args.model_path, checkpoint_dir)
         model_str = '/'.join(args.model_path.split('/')[-2:])
-        output_dir = os.path.join('data/probing_results', model_str, checkpoint_dir)
+        output_dir = os.path.join('/leonardo_work/IscrC_AILP/curriculum_learning/data/probing_results', model_str, checkpoint_dir)
         if os.path.isdir(checkpoint_path):
             do_probing_tasks(checkpoint_path, output_dir, args.tokenizer_path, args.train_path, args.test_path, args.batch_size)
 
-    do_probing_tasks(args.model_path, os.path.join('data/probing_results', model_str, f'checkpoint-{last_training_step}'), args.tokenizer_path,  args.train_path, args.test_path, args.batch_size)
+    do_probing_tasks(args.model_path, os.path.join('/leonardo_work/IscrC_AILP/curriculum_learning/data/probing_results', model_str, f'checkpoint-{last_training_step}'), args.tokenizer_path,  args.train_path, args.test_path, args.batch_size)
     print("--- %s seconds ---" % (time.time() - start_time))
     
 

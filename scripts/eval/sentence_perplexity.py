@@ -70,18 +70,18 @@ def main():
     args = parser.parse_args()
 
     if args.dataset == 'wikipedia':
-        dataset_path = 'data/datasets/eval_3.csv'
+        dataset_path = '/leonardo_work/IscrC_AILP/curriculum_learning/data/datasets/eval_3.csv'
         sentences_df = pd.read_csv(dataset_path).head(args.num_sentences)[['sent_id', 'text']]
     else:
-        dataset_path = 'data/probing_data/test.tsv'
+        dataset_path = '/leonardo_work/IscrC_AILP/curriculum_learning/data/probing_data/test.tsv'
         sentences_df = pd.read_csv(dataset_path, sep='\t').head(args.num_sentences)[['identifier', 'text']]
         sentences_df.rename(columns={'identifier': 'sent_id'}, inplace=True)
     
-    tokenizer_path = 'models/bert_tokenizer'
+    tokenizer_path = '/leonardo_work/IscrC_AILP/curriculum_learning/models/bert_tokenizer'
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
     
     if args.output_dir is None:
-        args.output_dir = os.path.join('data/perplexity', args.dataset, args.model_path.split('/')[-1])
+        args.output_dir = os.path.join('/leonardo_work/IscrC_AILP/curriculum_learning/data/perplexity', args.dataset, args.model_path.split('/')[-1])
     
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)

@@ -14,6 +14,7 @@ from transformers import (
     Trainer,    
 )
 
+from utils import get_last_checkpoint
 from datasets import load_dataset
 from functools import partial
 import numpy as np
@@ -124,7 +125,7 @@ def get_gata_collator(tokenizer, task):
 
 
 def model_finetuning(model_path, downstream_task, num_labels, compute_metrics, output_path, epochs):
-    tokenizer_path = 'models/bert_tokenizer'
+    tokenizer_path = '/leonardo_work/IscrC_AILP/curriculum_learning/models/bert_tokenizer'
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, add_prefix_space=True)
 
     model = get_model(model_path, downstream_task, num_labels)
@@ -133,7 +134,7 @@ def model_finetuning(model_path, downstream_task, num_labels, compute_metrics, o
 
     training_args = TrainingArguments(
         output_dir=output_path, 
-        eval_strategy='epoch',
+        evaluation_strategy='epoch',
         logging_strategy='epoch',
         logging_dir=output_path,
         per_device_train_batch_size=16,
@@ -170,8 +171,8 @@ def tokenize_dataset(task, tokenizer, model):
 
 
 def load_dataset_from_csv(task):
-    data_files = {'train': f'data/evaluation/{task}/train.csv', 
-                  'test': f'data/evaluation/{task}/test.csv'}
+    data_files = {'train': f'/leonardo_work/IscrC_AILP/curriculum_learning/data/evaluation/{task}/train.csv', 
+                  'test': f'/leonardo_work/IscrC_AILP/curriculum_learning/data/evaluation/{task}/test.csv'}
     
     dataset = load_dataset('csv', data_files=data_files)
     return dataset
@@ -238,7 +239,7 @@ def tokenize_dataset_dataset_for_token_classification(dataset, tokenizer, model)
     tokenized_dataset = dataset.map(tokenize_and_align_labels, batched=True, remove_columns=['text','id'], desc="Running tokenizer on train dataset")
     return tokenized_dataset
 
-def main1():
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--model_dir', type=str)
     parser.add_argument('-t', '--downstream_task', type=str, choices=['complexity', 'sentiment', 'coherence', 'pos_tagging'])
@@ -246,41 +247,21 @@ def main1():
     args = parser.parse_args()
 
     model_name = args.model_dir.split('/')[-1] if 'bert' in args.model_dir.split('/')[-1] else args.model_dir.split('/')[-2]
-    output_dir = os.path.join('models/downstream_tasks', args.downstream_task, model_name)
+    output_dir = os.path.join('/leonardo_work/IscrC_AILP/curriculum_learning/models/downstream_tasks', args.downstream_task, model_name)
     task_map = TASKS_MAP[args.downstream_task]
 
+    last_training_step = get_last_checkpoint(args.model_dir)
+
+    
     for checkpoint_name in os.listdir(args.model_dir):
         checkpoint_path = os.path.join(args.model_dir, checkpoint_name)
         if os.path.isdir(checkpoint_path):
             output_path = os.path.join(output_dir, checkpoint_name)
-            model_finetuning(checkpoint_path, args.downstream_task, task_map['num_labels'], task_map['compute_metrics'], output_path, args.epochs)
-    
-    model_finetuning(args.model_dir, args.downstream_task, task_map['num_labels'], task_map['compute_metrics'], os.path.join(output_dir, 'checkpoint-117189'), args.epochs)
-
-
-def main():
-    model_names = ['models/pretrained/bert_medium_42_train_1_gulpease', 'models/pretrained/bert_medium_42_train_1_gulpease_inverted', 'models/pretrained/bert_medium_42_train_1_orig_inverted']
-    downstream_tasks = ['sentiment', 'complexity', 'pos_tagging']
-
-    for downstream_task in downstream_tasks:
-        for model_dir in model_names:
-            model_name = model_dir.split('/')[-1] if 'bert' in model_dir.split('/')[-1] else model_dir.split('/')[-2]
-            output_dir = os.path.join('models/downstream_tasks', downstream_task, model_name)
-            task_map = TASKS_MAP[downstream_task]
-
-            for checkpoint_name in os.listdir(model_dir):
-                checkpoint_path = os.path.join(model_dir, checkpoint_name)
-                if os.path.isdir(checkpoint_path):
-                    output_path = os.path.join(output_dir, checkpoint_name)
-                    if not os.path.exists(output_path):
-                        model_finetuning(checkpoint_path, downstream_task, task_map['num_labels'], task_map['compute_metrics'], output_path, 10)
-                    else:
-                        print('skipping', checkpoint_path, 'on', downstream_task)
-
-        if not os.path.exists(os.path.join(output_dir, 'checkpoint-117189')):   
-            model_finetuning(model_dir, downstream_task, task_map['num_labels'], task_map['compute_metrics'], os.path.join(output_dir, 'checkpoint-117189'), 10)
-        else:
-            print('skipping final checkpoint on', downstream_task)
+            if not os.path.exists(output_path):
+                model_finetuning(checkpoint_path, args.downstream_task, task_map['num_labels'], task_map['compute_metrics'], output_path, args.epochs)
+            else:
+                print('skipping', checkpoint_path, 'on', downstream_task)
+    model_finetuning(args.model_dir, args.downstream_task, task_map['num_labels'], task_map['compute_metrics'], os.path.join(output_dir, f'checkpoint-{last_training_step}'), args.epochs)
 
 
 if __name__ == '__main__':
