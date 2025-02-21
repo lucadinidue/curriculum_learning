@@ -9,3 +9,4 @@ llm-foundry/*
 models/*
 *pyc
 *ipynb
+*/old/*

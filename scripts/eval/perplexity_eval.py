@@ -36,15 +36,11 @@ def load_perplexity_df(src_dir, model_size, model_seed, average_random=False):
     for dataset in ['wikipedia', 'treebank']:
         dataset_dir = os.path.join(src_dir, dataset)
         for model_name in os.listdir(dataset_dir):
-            # print(model_name)
             if model_size not in model_name or (model_seed and f'{model_seed}_train' not in model_name):
                 continue
             model_dir = os.path.join(dataset_dir, model_name)
             model_name = normalize_model_name(model_name, model_seed, average_random)
-            print('\n--------------------\n')
-            print(model_dir)
             for checkpoint_file_name in os.listdir(model_dir):
-                print(checkpoint_file_name)
                 checkpoint_num = int(checkpoint_file_name.split('-')[-1][:-4])
                 checkpoint_path = os.path.join(model_dir, checkpoint_file_name)
 
