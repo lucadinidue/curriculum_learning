@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.abspath('.'))
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0" 
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1" 
 
 from utils.dataset_utils import create_senteces_from_data, scale_datasets, tokenize_and_align_labels
 from utils.custom_modeling_bert import BertForMultitaskTokenClassification
@@ -29,7 +29,8 @@ def preprocess_dataset(dataset_path, model_name):
     df = pd.read_csv(dataset_path, index_col=0)
     dataset = create_senteces_from_data(df, TASKS)
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name, add_prefix_space=True)
+    # tokenizer = AutoTokenizer.from_pretrained(model_name, add_prefix_space=True)
+    tokenizer = AutoTokenizer.from_pretrained('models/bert_tokenizer', add_prefix_space=True)
 
     tokenized_dataset = dataset.map(
                     tokenize_and_align_labels(tokenizer,[f'label_{task}' for task in TASKS]),
@@ -88,7 +89,8 @@ def evaluate_on_dataset(args, tokenized_dataset, data_collator, k=5):
             num_train_epochs=args.training_epochs,
             learning_rate=args.learning_rate,
             weight_decay=args.weight_decay,
-            save_strategy = 'no'
+            save_strategy = 'no',
+            warmup_ratio=0.05
             )
     
     results = dict()
@@ -125,31 +127,26 @@ def unroll_results_dict(user_id, user_results):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--model_name', dest='model_name', type=str, default='dbmdz/bert-base-italian-cased')
-    parser.add_argument('-b', '--batch_size', type=int, default=16)
-    parser.add_argument('-l', '--learning_rate', dest='learning_rate', type=float, default=1e-05)
-    parser.add_argument('-e', '--epochs', dest='training_epochs', type=int, default=50)
-    parser.add_argument('-d', '--weight_decay', dest='weight_decay', type=float, default=0.1)
+    parser.add_argument('-b', '--batch_size', type=int, default=8)
+    parser.add_argument('-l', '--learning_rate', dest='learning_rate', type=float, default=5e-05)
+    parser.add_argument('-e', '--epochs', dest='training_epochs', type=int, default=200)
+    parser.add_argument('-d', '--weight_decay', dest='weight_decay', type=float, default=0.01)
     parser.add_argument('-k', '--k_fold', type=int, default=5)
     args = parser.parse_args()
 
     datasets_dir = 'data/eye_tracking_data/meco_users/'
-    out_path = f'data/eye_tracking_data/user_performances.csv'
-
-
-    all_user_dfs = []
+    out_path = f'data/eye_tracking_data/user_performances_random_init.csv'
+    first_write = True if not os.path.exists(out_path) else False
     
-    for user_file_name in os.listdir(datasets_dir):
+    for user_file_name in sorted(os.listdir(datasets_dir))[32:]:
         user_id = user_file_name.split('_')[1].split('.')[0]
         user_file_path = os.path.join(datasets_dir, user_file_name)
         user_dataset, data_collator = preprocess_dataset(user_file_path, args.model_name)
         user_results = evaluate_on_dataset(args, user_dataset, data_collator, args.k_fold)
         user_unrolled_results = unroll_results_dict(user_id, user_results)
         user_df = pd.DataFrame.from_dict(user_unrolled_results)
-        all_user_dfs.append(user_df)
-    
-    results_df = pd.concat(all_user_dfs)
-
-    results_df.to_csv(out_path)
+        user_df.to_csv(out_path, mode='a', header=first_write, index=False)
+        first_write = False
 
 if __name__ == '__main__':
     main()

@@ -4,9 +4,9 @@ import pandas as pd
 sns.set_style('darkgrid')
 
 def main():
-    eye_tracking_results_path = 'data/eye_tracking_data/user_performances.csv'
-    df = pd.read_csv(eye_tracking_results_path, index_col=0)
-    last_epoch_df = df[df['epoch'] == 50][['user_id', 'fold', 'feature', 'score']]
+    eye_tracking_results_path = 'data/eye_tracking_data/user_performances_random_init.csv'
+    df = pd.read_csv(eye_tracking_results_path)
+    last_epoch_df = df[df['epoch'] == 200][['user_id', 'fold', 'feature', 'score']]
 
 
     # Average scores on last epoch and across all epochs
