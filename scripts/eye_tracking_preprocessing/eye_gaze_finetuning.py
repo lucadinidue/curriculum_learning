@@ -85,7 +85,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--model_path', dest='model_path', type=str)
     parser.add_argument('-o', '--output_directory', dest='output_directory', type=str)
-    parser.add_argument('-u', '--user_id', type=int, default=37)
+    parser.add_argument('-u', '--user_id', type=int)
     parser.add_argument('-b', '--batch_size', type=int, default=8)
     parser.add_argument('-l', '--learning_rate', dest='learning_rate', type=float, default=5e-05)
     parser.add_argument('-e', '--epochs', dest='training_epochs', type=int, default=200)
