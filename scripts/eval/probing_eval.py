@@ -116,7 +116,7 @@ def load_computed_correlations(src_path):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input_directory', type=str, default='data/probing_results/medium')
-    parser.add_argument('-s', '--model_seed', type=int, choices=[42, 755, 995, None])
+    parser.add_argument('-s', '--model_seed')
     parser.add_argument('-a', '--average_random', action='store_true')
     parser.add_argument('-c', '--correlations_path', type=str, default=None)
     parser.add_argument('-o', '--output_path', type=str)

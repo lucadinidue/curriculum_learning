@@ -103,7 +103,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--downstream_task', choices=['sentiment', 'complexity', 'pos_tagging'])
     parser.add_argument('-d', '--model_size', default='medium', choices=['small', 'medium', 'base'])
-    parser.add_argument('-s', '--model_seed', type=int, choices=[42, 755, 995, None])
+    parser.add_argument('-s', '--model_seed')
     parser.add_argument('-a', '--average_random', action='store_true')
     args = parser.parse_args()
 
