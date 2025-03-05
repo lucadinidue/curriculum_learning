@@ -126,7 +126,7 @@ def unroll_results_dict(user_id, user_results):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-m', '--model_name', dest='model_name', type=str, default='dbmdz/bert-base-italian-cased')
+    parser.add_argument('-m', '--model_name', dest='model_name', type=str)
     parser.add_argument('-b', '--batch_size', type=int, default=8)
     parser.add_argument('-l', '--learning_rate', dest='learning_rate', type=float, default=5e-05)
     parser.add_argument('-e', '--epochs', dest='training_epochs', type=int, default=200)
@@ -138,7 +138,7 @@ def main():
     out_path = f'data/eye_tracking_data/user_performances_random_init.csv'
     first_write = True if not os.path.exists(out_path) else False
     
-    for user_file_name in sorted(os.listdir(datasets_dir))[32:]:
+    for user_file_name in sorted(os.listdir(datasets_dir)):        
         user_id = user_file_name.split('_')[1].split('.')[0]
         user_file_path = os.path.join(datasets_dir, user_file_name)
         user_dataset, data_collator = preprocess_dataset(user_file_path, args.model_name)

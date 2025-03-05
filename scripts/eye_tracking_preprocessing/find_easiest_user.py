@@ -1,10 +1,16 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import argparse
+
 sns.set_style('darkgrid')
 
 def main():
-    eye_tracking_results_path = 'data/eye_tracking_data/user_performances_random_init.csv'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', '--model_seed', type=int, choices=[42, 755, 995])
+    args = parser.parse_args()
+
+    eye_tracking_results_path = f'data/eye_tracking_data/user_performances_random_init_{args.model_seed}.csv'
     df = pd.read_csv(eye_tracking_results_path)
     last_epoch_df = df[df['epoch'] == 200][['user_id', 'fold', 'feature', 'score']]
 
@@ -31,7 +37,7 @@ def main():
             ha='right', 
             va='bottom', 
             fontsize=12)
-    plt.savefig('data/eye_tracking_data/easiest_user.png', bbox_inches='tight')
+    plt.savefig(f'data/eye_tracking_data/easiest_user_{args.model_seed}.png', bbox_inches='tight')
 
 
 if __name__ == '__main__':
