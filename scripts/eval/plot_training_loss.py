@@ -10,7 +10,7 @@ sns.set_style('darkgrid')
 
 def update_loss_dict(model_name, trainer_state, loss_dict, average_random=False):
     splitted_name = model_name.split('_')
-    seed = splitted_name[2]
+    seed = splitted_name[2] if not splitted_name[3] == 'eye' else splitted_name[2]+'_eye_tracking'
     curriculum = '_'.join(splitted_name[splitted_name.index('1')+1:])
     if average_random:
         if 'orig' in curriculum or 'rand' in curriculum:
@@ -27,6 +27,9 @@ def update_loss_dict(model_name, trainer_state, loss_dict, average_random=False)
 
 def load_trainer_state(model_dir):
     trainer_state_path = os.path.join(model_dir, 'trainer_state.json')
+    if not os.path.exists(trainer_state_path):
+        # print(trainer_state_path)
+        return {}
     with open(trainer_state_path, 'r') as src_file:
         trainer_state = json.load(src_file)['log_history']
     return trainer_state
@@ -38,7 +41,6 @@ def create_loss_df(models_dir, seed):
         trainer_state = load_trainer_state(model_dir)
         loss_dict = update_loss_dict(model_name, trainer_state, loss_dict)
     loss_df = pd.DataFrame.from_dict(loss_dict)
-
     seed_df = loss_df[loss_df['seed'] == seed][['curriculum', 'epoch', 'loss']]
     return seed_df
 
@@ -51,12 +53,13 @@ def plot_loss(loss_df, output_path):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-m', '--models_dir', type=str)
+    parser.add_argument('-m', '--models_dir', type=str, default='models/pretrained/medium')
     parser.add_argument('-s', '--model_seed')
     args = parser.parse_args()
     
     output_path = f'results/seed_{args.model_seed}/bert_medium_training_loss.png'
     loss_df = create_loss_df(args.models_dir, args.model_seed)
+    print(loss_df)
     plot_loss(loss_df, output_path)
     
 
