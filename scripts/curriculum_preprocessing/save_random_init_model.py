@@ -1,15 +1,19 @@
-from transformers import AutoModelForMaskedLM, set_seed,  BertConfig
+from transformers import AutoModelForMaskedLM, AutoModelForCausalLM, set_seed, BertConfig, GPT2Config
 import argparse
 import json
 
-def load_model_config(config_path):
+def load_model_config(config_path, model_type):
     with open(config_path, 'r') as config_file:
         config = json.load(config_file)
-        config =  BertConfig.from_dict(config)
+        if model_type == 'bert':
+            config =  BertConfig.from_dict(config)
+        else:
+            config = GPT2Config.from_dict(config)
     return config
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('-t', '--model_type', type=str, choices=['bert', 'gpt'])
     parser.add_argument('-s', '--seed', type=int)
     parser.add_argument('-c', '--config_path', type=str)
     parser.add_argument('-o', '--output_path', type=str)
@@ -17,8 +21,13 @@ def main():
 
     set_seed(args.seed)
 
-    config = load_model_config(args.config_path)
-    model = AutoModelForMaskedLM.from_config(config)
+    config = load_model_config(args.config_path, args.model_type)
+    if args.model_type == 'bert':
+        model = AutoModelForMaskedLM.from_config(config)
+    elif args.model_type == 'gpt':
+        model = AutoModelForCausalLM.from_config(config)
+    else:
+        raise ValueError("Unsupported model type. Choose 'bert' or 'gpt'.")
     model.save_pretrained(args.output_path)
 
 
