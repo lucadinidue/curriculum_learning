@@ -35,26 +35,28 @@ def train_gpt_tokenizer():
     dataset_path = '/home/luca/Workspace/wiki_ita/wiki_sentences.txt'
     tokenizer_path = 'models/gpt_tokenizer'
 
-    tokenizer = ByteLevelBPETokenizer(lowercase=False, model_max_length=512)
+    tokenizer = ByteLevelBPETokenizer(lowercase=False)
 
     tokenizer.train(files=[dataset_path],
         vocab_size=30000,
         min_frequency=2,
-        special_tokens=['<|endoftext|>', '<|pad|>'] 
+        special_tokens=['<|endoftext|>'] 
     )
 
-    tokenizer.save_model('../models/gpt_bpe_tokenizer')
+    tokenizer.save_model(tokenizer_path)
 
-    # Setting other GPT2 tokenizer parameters
-    tokenizer_2 = GPT2TokenizerFast.from_pretrained('../models/gpt_bpe_tokenizer')
-    tokenizer_2.add_special_tokens({
-        "bos_token": "<|endoftext|>",
+    gpt2_tokenizer = GPT2TokenizerFast(
+        vocab_file = os.path.join(tokenizer_path, 'vocab.json'),
+        merges_file = os.path.join(tokenizer_path, 'merges.txt')
+    )
+
+    gpt2_tokenizer.add_special_tokens({
         "eos_token": "<|endoftext|>",
-        "unk_token": "<|endoftext|>"
+        "pad_token": "<|pad|>"  # Se vuoi anche il pad token, opzionale
     })
 
-    tokenizer_2.model_max_length = 512
-    tokenizer_2.save_pretrained(tokenizer_path)
+    gpt2_tokenizer.model_max_length = 512
+    gpt2_tokenizer.save_pretrained(tokenizer_path)
 
 
 
