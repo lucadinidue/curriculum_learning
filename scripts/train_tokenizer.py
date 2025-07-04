@@ -10,8 +10,8 @@ def train_bert_tokenizer():
 
 
     tokenizer_config = {
-        "do_lower_case": "false",
-        "strip_accents": "false"
+        'do_lower_case': 'false',
+        'strip_accents': 'false'
     }
 
     with open(os.path.join(tokenizer_path, 'tokenizer_config.json'), 'w') as config_file:
@@ -40,7 +40,7 @@ def train_gpt_tokenizer():
     tokenizer.train(files=[dataset_path],
         vocab_size=30000,
         min_frequency=2,
-        special_tokens=['<|endoftext|>'] 
+        special_tokens=['<|endoftext|>', '<|pad|>'] 
     )
 
     tokenizer.save_model(tokenizer_path)
@@ -51,8 +51,8 @@ def train_gpt_tokenizer():
     )
 
     gpt2_tokenizer.add_special_tokens({
-        "eos_token": "<|endoftext|>",
-        "pad_token": "<|pad|>"  # Se vuoi anche il pad token, opzionale
+        'eos_token': '<|endoftext|>',
+        'pad_token': '<|pad|>' 
     })
 
     gpt2_tokenizer.model_max_length = 512
@@ -70,7 +70,7 @@ def main():
     elif args.type == 'gpt':
         train_gpt_tokenizer()
     else:
-        raise ValueError("Invalid tokenizer type. Choose 'bert' or 'gpt'.")
+        raise ValueError('Invalid tokenizer type. Choose \'bert\' or \'gpt\'.')
     
 if __name__ == '__main__':
     main()
