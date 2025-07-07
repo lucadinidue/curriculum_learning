@@ -256,7 +256,10 @@ def main():
     parser.add_argument('-e', '--epochs', type=int, default=10)
     args = parser.parse_args()
 
-    model_name = args.model_dir.split('/')[-1] if 'bert' in args.model_dir.split('/')[-1] else args.model_dir.split('/')[-2]
+    if 'bert' in args.model_dir:
+        model_name = args.model_dir.split('/')[-1] if 'bert' in args.model_dir.split('/')[-1] else args.model_dir.split('/')[-2]
+    else:
+        model_name = args.model_dir.split('/')[-1] if 'gpt' in args.model_dir.split('/')[-1] else args.model_dir.split('/')[-2]
     output_dir = os.path.join('models/downstream_tasks', args.downstream_task, model_name)
     task_map = TASKS_MAP[args.downstream_task]
 
