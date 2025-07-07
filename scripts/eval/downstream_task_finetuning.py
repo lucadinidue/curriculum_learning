@@ -3,6 +3,7 @@ import sys
 sys.path.append(os.path.abspath("."))
 os.environ['WANDB_DISABLED'] = 'true'
 
+from modules.custom_modeling_gpt2 import GPT2ForSentipolcClassification
 from modules.custom_modeling_bert import BertForSentipolcClassification
 from transformers import (
     DataCollatorForTokenClassification,
@@ -106,7 +107,10 @@ TASKS_MAP = {
 
 def get_model(model_path, task, num_labels):
     if task == 'sentiment':
-        model = BertForSentipolcClassification.from_pretrained(model_path, num_labels=num_labels)
+        if 'bert' in model_path:
+            model = BertForSentipolcClassification.from_pretrained(model_path, num_labels=num_labels)
+        else: 
+            model = GPT2ForSentipolcClassification.from_pretrained(model_path, num_labels=num_labels)
     elif task == 'pos_tagging':
         model = AutoModelForTokenClassification.from_pretrained(model_path, num_labels=num_labels)
     else:
@@ -124,12 +128,19 @@ def get_gata_collator(tokenizer, task):
 
 
 def model_finetuning(model_path, downstream_task, num_labels, compute_metrics, output_path, epochs):
-    tokenizer_path = 'models/bert_tokenizer'
+    if 'bert' in model_path:
+        tokenizer_path = 'models/bert_tokenizer'
+    else:
+        tokenizer_path = 'models/gpt_tokenizer'
+
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, add_prefix_space=True)
 
     model = get_model(model_path, downstream_task, num_labels)
     data_collator = get_gata_collator(tokenizer, downstream_task)
     tokenized_dataset = tokenize_dataset(downstream_task, tokenizer, model)
+
+    # Forgot to set pad_token_id in the first pre-trained GPT model
+    model.config.pad_token_id = tokenizer.pad_token_id
 
     training_args = TrainingArguments(
         output_dir=output_path, 
@@ -238,7 +249,7 @@ def tokenize_dataset_dataset_for_token_classification(dataset, tokenizer, model)
     tokenized_dataset = dataset.map(tokenize_and_align_labels, batched=True, remove_columns=['text','id'], desc="Running tokenizer on train dataset")
     return tokenized_dataset
 
-def main1():
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--model_dir', type=str)
     parser.add_argument('-t', '--downstream_task', type=str, choices=['complexity', 'sentiment', 'coherence', 'pos_tagging'])
@@ -258,7 +269,7 @@ def main1():
     model_finetuning(args.model_dir, args.downstream_task, task_map['num_labels'], task_map['compute_metrics'], os.path.join(output_dir, 'checkpoint-117189'), args.epochs)
 
 
-def main():
+def main1():
     model_names = ['models/pretrained/bert_medium_42_train_1_gulpease', 'models/pretrained/bert_medium_42_train_1_gulpease_inverted', 'models/pretrained/bert_medium_42_train_1_orig_inverted']
     downstream_tasks = ['sentiment', 'complexity', 'pos_tagging']
 

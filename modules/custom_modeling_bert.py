@@ -1,19 +1,11 @@
 
 from typing import Optional, Tuple, Union
 import torch
-import torch.utils.checkpoint
 from torch import nn
-
 from transformers.utils import logging
-
 from transformers import BertPreTrainedModel, BertModel
-
 from transformers.modeling_outputs import SequenceClassifierOutput
-
-
-import torch
 from torch.nn import CrossEntropyLoss
-from typing import Optional, Tuple
 from transformers.utils import logging
 
 logger = logging.get_logger(__name__)
