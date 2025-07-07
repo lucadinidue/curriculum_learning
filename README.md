@@ -19,9 +19,9 @@ By Luc(i?)a
  - Seed 995 + Eye-tracking 🫐
  - Seed 755 + Eye-tracking 🍊
 
-## Things to do
+## ENCODERS
 
-Model performances 🏋️
+Model performances 🏋️ 
  
 |                | Probing | PPL Wiki | PPL Treebank | Sentiment | Complexity | POS Tagging |
 |----------------|---------|----------|--------------|-----------|------------|-------------|
@@ -65,4 +65,7 @@ Model performances 🏋️
 | **Sentence_len_I** | 🌱 🌷 🫐         | 🌱 🫐           | 🌱 🌷 🫐         | 🌱 🌷 🫐        | 🌱 🌷 🫐        | 🌱               |
 | **Readit**       | 🌱 🌷 🥑🥕 🫐🍊   | 🌱 🌷 🥑🥕🫐 🍊 | 🌱 🌷 🥑 🥕 🫐🍊 | 🌱 🌷 🥑 🥕🫐🍊  | 🌱 🌷 🥑 🥕🫐🍊  | 🌱               |
 | **Readit_I**     | 🌱 🌷 🥕 🫐 🍊   | 🌱 🌷 🥕 🫐 🍊  | 🌱 🌷 🫐🍊      | 🌱 🌷 🫐 🍊     | 🌱 🌷 🫐 🍊     | 🌱               |
+
+## DECODERS
+
 
