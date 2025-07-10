@@ -3,7 +3,7 @@ import sys
 sys.path.append(os.path.abspath("."))
 os.environ['WANDB_DISABLED'] = 'true'
 
-from modules.custom_modeling_gpt2 import GPT2ForSentipolcClassification
+from modules.custom_modeling_gpt2 import GPT2ForSentipolcClassification, GPT2ForSentipolcClassificationWithDropout, GPT2ForSequenceClassificationWithDropout
 from modules.custom_modeling_bert import BertForSentipolcClassification
 from transformers import (
     DataCollatorForTokenClassification,
@@ -110,11 +110,15 @@ def get_model(model_path, task, num_labels):
         if 'bert' in model_path:
             model = BertForSentipolcClassification.from_pretrained(model_path, num_labels=num_labels)
         else: 
-            model = GPT2ForSentipolcClassification.from_pretrained(model_path, num_labels=num_labels)
+            model = GPT2ForSentipolcClassificationWithDropout.from_pretrained(model_path, num_labels=num_labels)
     elif task == 'pos_tagging':
         model = AutoModelForTokenClassification.from_pretrained(model_path, num_labels=num_labels)
     else:
-        model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=num_labels)
+        if 'bert' in model_path:
+            model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=num_labels)
+        else:
+            model = GPT2ForSequenceClassificationWithDropout.from_pretrained(model_path, num_labels=num_labels)
+
     return model
 
 
