@@ -81,12 +81,12 @@ Model performances 🏋️
 | RandR2_I       |         |          |              |           |            |             |
 | RandG          |         |          |              |           |            |             |
 | RandG_I        |         |          |              |           |            |             |
-| Gulpease       |         |          |              |           |            |             |
-| Gulpease_I     |         |          |              |           |            |             |
+| Gulpease       | 🌱      |          |              |           |            |             |
+| Gulpease_I     | 🌱      |          |              |           |            |             |
 | Sentence_len   |         |          |              |           |            |             |
 | Sentence_len_I |         |          |              |           |            |             |
-| Readit         |         |          |              |           |            |             |
-| Readit_I       |         |          |              |           |            |             |
+| Readit         | 🌱      |          |              |           |            |             |
+| Readit_I       | 🌱      |          |              |           |            |             |
 
 
 # Representations' Space 🚀
