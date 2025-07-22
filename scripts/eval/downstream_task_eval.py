@@ -69,9 +69,7 @@ def get_task_results(models_dir, downstream_task, model_size, model_seed=None, a
     res_df = []
     for model_name in os.listdir(models_dir):
         if model_size in model_name:
-            print(model_seed)
             if model_seed is None or f'{model_seed}_train' in model_name:
-                print('ciao')
                 model_df = get_model_results(models_dir, model_name, downstream_task, average_metrics)
                 model_df['model'] = normalize_model_name(model_name, model_seed, average_random)
                 res_df.append(model_df)
@@ -110,7 +108,7 @@ def main():
     args = parser.parse_args()
 
     if args.model_seed is not None:
-        output_path = f'results/seed_{args.model_seed}/{args.model_name}_{args.model_size}_{args.downstream_task}'   
+        output_path = f'results/{args.model_name}/seed_{args.model_seed}/{args.model_name}_{args.downstream_task}'   
     else:
         output_path = f'results/{args.model_name}_{args.model_size}_{args.downstream_task}'   
     average_metrics = True if args.downstream_task == 'sentiment' else False

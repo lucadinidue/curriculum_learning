@@ -143,6 +143,9 @@ def model_finetuning(model_path, downstream_task, num_labels, compute_metrics, o
     data_collator = get_gata_collator(tokenizer, downstream_task)
     tokenized_dataset = tokenize_dataset(downstream_task, tokenizer, model)
 
+    print(tokenized_dataset['train'][0])
+    assert False
+
     # Forgot to set pad_token_id in the first pre-trained GPT model
     model.config.pad_token_id = tokenizer.pad_token_id
 

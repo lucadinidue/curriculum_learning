@@ -37,6 +37,7 @@ def load_trainer_state(model_dir):
 def create_loss_df(models_dir, seed):
     loss_dict = None
     for model_name in os.listdir(models_dir):
+        print(model_name)
         model_dir = os.path.join(models_dir, model_name)
         trainer_state = load_trainer_state(model_dir)
         loss_dict = update_loss_dict(model_name, trainer_state, loss_dict)
@@ -57,7 +58,7 @@ def main():
     parser.add_argument('-s', '--model_seed')
     args = parser.parse_args()
     
-    output_path = f'results/seed_{args.model_seed}/bert_medium_training_loss.png'
+    output_path = f'results/gpt/seed_{args.model_seed}/gpt_medium_training_loss.png'
     loss_df = create_loss_df(args.models_dir, args.model_seed)
     print(loss_df)
     plot_loss(loss_df, output_path)
