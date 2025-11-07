@@ -107,15 +107,14 @@ def already_coputed(src_dir):
             return True
     return False
 
-def do_probing_tasks(model_path, output_dir, tokenizer_path='models/bert_tokenizer', train_path='data/probing_data/train.tsv', test_path= 'data/probing_data/test.tsv', batch_size=16):
+def do_probing_tasks(model_path, output_dir, tokenizer_path, train_path='data/probing_data/train.tsv', test_path= 'data/probing_data/test.tsv', batch_size=16):
     if already_coputed(output_dir):
         print(f'Skipping {output_dir}')
         return
     
-    print(f'Computing {output_dir}')
-
     os.makedirs(os.path.join(output_dir, 'train'))
     os.makedirs(os.path.join(output_dir, 'test'))
+
     save_dataset_representations(model_path, tokenizer_path, train_path, test_path, output_dir, batch_size)
 
     train_df = load_dataframe(train_path)

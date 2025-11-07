@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import argparse
+import json
 import csv
 import os
 
@@ -36,13 +37,29 @@ def normalize_model_name(model_name, model_seed, average_random):
             model_name = 'random'
     return model_name
 
+def map_checkpoints_to_tokens(res_df, checkpoint_tokens_map):
+    def map_row(row):
+        curriculum = '_'.join(row['model'].split('_')[5:])
+        checkpoint = str(int(row['checkpoint']))
+        num_tokens = None
+        if curriculum in checkpoint_tokens_map:
+            print(checkpoint)
+            if checkpoint in checkpoint_tokens_map[curriculum]:
+                num_tokens = checkpoint_tokens_map[curriculum][checkpoint]
+                print(num_tokens)
+                return num_tokens
+        return None
+    
+    res_df['num_training_tokens'] = res_df.apply(map_row, axis=1)
+    res_df = res_df[res_df['num_training_tokens'].notnull()]
+    return res_df
+
 def load_res_df(src_dir, res_df, model_seed=None, average_random=False):
     res_dict = {'model': [], 'checkpoint':[], 'feature': [], 'layer':[], 'score':[]}
 
     for model_name in os.listdir(src_dir):
         if model_seed and f'{model_seed}_train' not in model_name:
             continue
-        print(model_name)
         model_dir = os.path.join(src_dir, model_name)
         if not os.path.isdir(model_dir):
             continue
@@ -65,15 +82,22 @@ def load_res_df(src_dir, res_df, model_seed=None, average_random=False):
     
     return pd.concat([res_df, pd.DataFrame.from_dict(res_dict)])
 
-def print_features_scores(res_df, output_path,  average_random=False, legend_path=None, max_checkpoint=None):
+def print_features_scores(res_df, output_path,  average_random=False, checkpoint_tokens_map=None, legend_path=None, max_checkpoint=None):
     sorted_models = HUE_ORDER if average_random else sorted(list(res_df['model'].unique()), reverse=True)
-    print(sorted_models)
     palette = get_seaborn_palette(len(sorted_models))
     if max_checkpoint is not None:
         res_df = res_df[res_df['checkpoint'] <= max_checkpoint]
         
     features = sorted(list(res_df['feature'].unique()))
     layers = sorted(list(res_df['layer'].unique()))
+
+
+    if checkpoint_tokens_map is not None:
+        res_df = map_checkpoints_to_tokens(res_df, checkpoint_tokens_map)
+
+    x_key = 'num_training_tokens' if checkpoint_tokens_map is not None else 'checkpoint'
+
+    print(res_df)
    
     n_rows = len(features)
     n_cols = len(layers)
@@ -84,7 +108,7 @@ def print_features_scores(res_df, output_path,  average_random=False, legend_pat
             vmin = res_df[res_df['feature'] == feature]['score'].min()
             vmax = res_df[res_df['feature'] == feature]['score'].max()
             feature_df = res_df[(res_df['feature'] == feature) & (res_df['layer'] == layer)]
-            sns.lineplot(data=feature_df, x='checkpoint', y='score', hue='model', marker='o', hue_order=sorted_models, palette=palette, ax=axes[feat_idx][layer_idx], legend=False)
+            sns.lineplot(data=feature_df, x=x_key, y='score', hue='model', marker='o', hue_order=sorted_models, palette=palette, ax=axes[feat_idx][layer_idx], legend=False)
             axes[feat_idx][layer_idx].set_title(f'{feature}, layer {layer}')
             for layer_idx in range(len(layers)):
                 axes[feat_idx][layer_idx].set_ylim(vmin-0.05, vmax+0.05)
@@ -112,6 +136,15 @@ def load_computed_correlations(src_path):
     else:
         return pd.DataFrame(columns=['model', 'checkpoint', 'feature', 'layer', 'score'])
 
+def load_checkpoint_tokens_map(src_dir):
+    checkpoint_tokens_map = {}
+    for curriculum_file_name in os.listdir(src_dir):
+        curriculum = curriculum_file_name.split('.')[0]
+        file_path = os.path.join(src_dir, curriculum_file_name)
+        with open(file_path, 'r') as src_file:
+            curriculum_map = json.load(src_file)
+        checkpoint_tokens_map[curriculum] = curriculum_map
+    return checkpoint_tokens_map
 
 def main():
     parser = argparse.ArgumentParser()
@@ -121,14 +154,22 @@ def main():
     parser.add_argument('-c', '--correlations_path', type=str, default=None)
     parser.add_argument('-o', '--output_path', type=str)
     parser.add_argument('-l', '--legend_path', type=str, default=None)
+    parser.add_argument('-n', '--num_tokens_map', action='store_true')
     args = parser.parse_args()
+
+    if args.num_tokens_map:
+        num_tokens_dir = 'data/num_training_tokens'
+        checkpoint_tokens_map = load_checkpoint_tokens_map(num_tokens_dir)
+    else:
+        checkpoint_tokens_map = None
+
 
     already_computed_df = load_computed_correlations(args.correlations_path)
     res_df = load_res_df(args.input_directory, already_computed_df,  model_seed=args.model_seed, average_random=args.average_random)
     res_df.to_csv(args.correlations_path)
     res_df['model'] = res_df.apply(lambda row: normalize_model_name(row['model'], model_seed=args.model_seed, average_random=args.average_random), axis=1)
     print('Computing plot')
-    print_features_scores(res_df, args.output_path, average_random=args.average_random, legend_path= args.legend_path, max_checkpoint=None)
+    print_features_scores(res_df, args.output_path, average_random=args.average_random, checkpoint_tokens_map=checkpoint_tokens_map, legend_path=args.legend_path, max_checkpoint=None)
 
 if __name__ == '__main__':
     main()
