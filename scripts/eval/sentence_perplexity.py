@@ -9,36 +9,39 @@ import os
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def mask_all_tokens(sentence, tokenizer):
-    masked_sentences = []
     tokenized_sentence = tokenizer(sentence, return_tensors='pt')
-    for token_idx in range(1, len(tokenized_sentence['input_ids'][0]) - 1):
-        masked_input = tokenizer(sentence, return_tensors='pt')  # tokenized_sentence.copy()
-        masked_input['input_ids'][0][token_idx] = tokenizer.mask_token_id
-        masked_sentences.append(masked_input)
-    return masked_sentences
+    num_tokens = tokenized_sentence['input_ids'].shape[1]
 
-def compute_plausibility_and_perplexity(sentence, tokenizer, model):
-    masked_sentences = mask_all_tokens(sentence, tokenizer)
-    original_tokens = tokenizer(sentence)['input_ids']
+    masking_positions = torch.arange(1, num_tokens-1, dtype=torch.long)  # (seq_len) - 2 for [CLS] and [SEP]
+    masked_input_ids = tokenized_sentence['input_ids'].repeat(len(masking_positions), 1)     # (seq_len - 2, seq_len )
+    masked_input_ids[torch.arange(len(masking_positions)), masking_positions] = tokenizer.mask_token_id   # (seq_len - 2, seq_len )
 
+    return masked_input_ids, tokenized_sentence['input_ids'][0]
+
+
+def compute_plausibility_and_perplexity(sentence, tokenizer, model, batch_size=128):
+    masked_sentences, original_tokens = mask_all_tokens(sentence, tokenizer)
     masked_probabilities = []
     losses = []
 
-    for sent_idx, masked_sentence in enumerate(masked_sentences):
-        masked_idx = sent_idx + 1
-        correct_token = original_tokens[masked_idx]
-        labels = torch.full_like(masked_sentence['input_ids'], -100)
-        labels[0, masked_idx] = correct_token
+    for batch_start in range(0, len(masked_sentences), batch_size):
+        batch_sentences = masked_sentences[batch_start:batch_start+batch_size]  # batch_size, seq_len
+        masked_ids = list(range(batch_start+1, min(batch_start+batch_size, len(masked_sentences))+1)) # batch_size
+        correct_tokens = original_tokens[masked_ids]    # batch_size
+        labels = torch.full_like(batch_sentences, -100)  # batch_size, seq_len
 
+        batch_idx = torch.arange(len(batch_sentences))  # batch_size
+        labels[batch_idx, masked_ids] = correct_tokens  # batch_size, seq_len
 
         with torch.no_grad():
-            outputs = model(input_ids=masked_sentence['input_ids'].to(device), attention_mask=masked_sentence['attention_mask'].to(device), labels=labels.to(device))
+            outputs = model(input_ids=batch_sentences.to(device), labels=labels.to(device))
 
-        logits = outputs.logits[0, masked_idx]
-        probs = logits.softmax(dim=-1)
-        
+        logits = outputs.logits[batch_idx, masked_ids] # batch_size, vocab_size
+        probs = logits.softmax(dim=-1) # batch_size, vocab_size
         losses.append(outputs.loss)
-        masked_probabilities.append(probs[correct_token].item())
+        correct_tokens_probs = probs[batch_idx, correct_tokens] # batch_size
+        masked_probabilities.extend(correct_tokens_probs.tolist())
+
 
     plausibility = sum(masked_probabilities) / len(masked_probabilities)
     perplexity = torch.exp(torch.stack(losses).mean()).item()
@@ -51,7 +54,7 @@ def compute_checkpoint_perplexity(model_path, tokenizer,  output_path, sentences
 
     plausibilities, perplexities = [], []
     for _, row in tqdm(sentences_df.iterrows(), total=len(sentences_df)):
-        sent_plausibility, sent_perplexity = compute_plausibility_and_perplexity(row['sent_id'], tokenizer, model)
+        sent_plausibility, sent_perplexity = compute_plausibility_and_perplexity(row['text'], tokenizer, model)
         plausibilities.append(sent_plausibility)
         perplexities.append(sent_perplexity)
     
@@ -94,7 +97,7 @@ def main():
             output_path = os.path.join(args.output_dir, checkpoint_name+'.csv')
             compute_checkpoint_perplexity(checkpoint_model_path, tokenizer,  output_path, sentences_df)
     
-    compute_checkpoint_perplexity(args.model_path, tokenizer, os.path.join(args.output_dir, f'checkpoint-{last_training_step}'), sentences_df)
+    compute_checkpoint_perplexity(args.model_path, tokenizer, os.path.join(args.output_dir, f'checkpoint-{last_training_step}.csv'), sentences_df)
 
 if __name__ == '__main__':
     main()
