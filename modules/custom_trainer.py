@@ -3,9 +3,15 @@ from torch.utils.data import SequentialSampler
 import torch
 
 
+#class NoShuffleTrainer(Trainer):
+#    def _get_train_sampler(self) -> torch.utils.data.Sampler:
+#        return SequentialSampler(self.train_dataset)
+
+
+# Changed for updated transformers version
 class NoShuffleTrainer(Trainer):
-    def _get_train_sampler(self) -> torch.utils.data.Sampler:
-        return SequentialSampler(self.train_dataset)
+    def _get_train_sampler(self, dataset: torch.utils.data.Dataset) -> torch.utils.data.Sampler:
+        return SequentialSampler(dataset)
 
 
 class IncrementalStepsCheckpointCallback(TrainerCallback):
