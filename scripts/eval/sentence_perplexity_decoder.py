@@ -97,9 +97,6 @@ def compute_perplexity(sentences, tokenizer, model, max_length=128):
     perplexity = torch.exp(sentence_negative_log_likelihood)
     return perplexity.detach().cpu().tolist()
 
-
-
-
 def compute_checkpoint_perplexity(model_path, tokenizer,  output_path, sentences_df, batch_size=32):
     model = AutoModelForCausalLM.from_pretrained(model_path).eval().to(device)
     model.config.pad_token_id = tokenizer.pad_token_id

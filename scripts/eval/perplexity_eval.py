@@ -33,7 +33,7 @@ def normalize_model_name(model_name, model_seed, average_random):
 
 def load_perplexity_df(src_dir, model_seed, average_random=False):
     res_dict = {'model': [], 'checkpoint':[], 'metric': [], 'score':[], 'dataset':[]}
-    for dataset in ['wikipedia']:#['wikipedia', 'treebank']:
+    for dataset in ['wikipedia', 'treebank']:
         dataset_dir = os.path.join(src_dir, dataset)
         for model_name in os.listdir(dataset_dir):
             if (model_seed and f'{model_seed}_train' not in model_name):
