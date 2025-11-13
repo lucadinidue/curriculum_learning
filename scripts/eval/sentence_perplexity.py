@@ -84,7 +84,7 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
     
     if args.output_dir is None:
-        args.output_dir = os.path.join('data/perplexity', args.dataset, args.model_path.split('/')[-1])
+        args.output_dir = os.path.join('data/perplexity/bert', args.dataset, args.model_path.split('/')[-1])
     
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
