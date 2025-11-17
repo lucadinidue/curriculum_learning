@@ -68,7 +68,7 @@ def map_checkpoints_to_tokens(res_df, checkpoint_tokens_map):
                 num_tokens = checkpoint_tokens_map[curriculum][checkpoint]
                 return num_tokens
         else:
-            print(curriculum)
+            raise ValueError(f'Curriculum {curriculum} not found in checkpoint_tokens_map')
         return None
     
     res_df['num_training_tokens'] = res_df.apply(map_row, axis=1)
@@ -88,9 +88,6 @@ def plot_results(res_df, output_path, model_seed, average_random=False, min_chec
 
     for metric in sorted(list(res_df['metric'].unique())):
         metric_df = res_df[res_df['metric'] == metric]
-
-        print(f'Plotting {metric}')
-        print(metric_df['model'].unique())
 
         if min_checkpoint is not None:
             metric_df = metric_df[metric_df['checkpoint'] >= min_checkpoint]
