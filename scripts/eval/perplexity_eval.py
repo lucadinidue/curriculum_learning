@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import argparse
+import json
 import os
 
 sns.set_style("darkgrid")
@@ -31,7 +32,7 @@ def normalize_model_name(model_name, model_seed, average_random):
             model_name = 'random'
     return model_name
 
-def load_perplexity_df(src_dir, model_seed, average_random=False):
+def load_perplexity_df(src_dir, model_seed):
     res_dict = {'model': [], 'checkpoint':[], 'metric': [], 'score':[], 'dataset':[]}
     for dataset in ['wikipedia', 'treebank']:
         dataset_dir = os.path.join(src_dir, dataset)
@@ -39,7 +40,6 @@ def load_perplexity_df(src_dir, model_seed, average_random=False):
             if (model_seed and f'{model_seed}_train' not in model_name):
                 continue
             model_dir = os.path.join(dataset_dir, model_name)
-            model_name = normalize_model_name(model_name, model_seed, average_random)
             for checkpoint_file_name in os.listdir(model_dir):
                 checkpoint_num = int(checkpoint_file_name.split('-')[-1][:-4])
                 checkpoint_path = os.path.join(model_dir, checkpoint_file_name)
@@ -54,36 +54,88 @@ def load_perplexity_df(src_dir, model_seed, average_random=False):
                         add_to_res_dict(res_dict, model_name, checkpoint_num, 'perplexity', pp, dataset)  
     return pd.DataFrame.from_dict(res_dict)
 
-def plot_results(res_df, output_path, average_random=False, min_checkpoint=None):
+def map_checkpoints_to_tokens(res_df, checkpoint_tokens_map):
+    def map_row(row):
+        curriculum = '_'.join(row['model'].split('_')[5:])
+        if 'rand' in curriculum and not 'random_' in curriculum:
+            curriculum = curriculum.replace('rand', 'random_')
+        if curriculum == '': # for the case with no seed specified
+            curriculum = row['model']
+        checkpoint = str(int(row['checkpoint']))
+        num_tokens = None
+        if curriculum in checkpoint_tokens_map:
+            if checkpoint in checkpoint_tokens_map[curriculum]:
+                num_tokens = checkpoint_tokens_map[curriculum][checkpoint]
+                return num_tokens
+        else:
+            print(curriculum)
+        return None
+    
+    res_df['num_training_tokens'] = res_df.apply(map_row, axis=1)
+    res_df = res_df[res_df['num_training_tokens'].notnull()]
+    return res_df
+
+
+def plot_results(res_df, output_path, model_seed, average_random=False, min_checkpoint=None, checkpoint_tokens_map=None):
     sorted_models = HUE_ORDER if average_random else sorted(list(res_df['model'].unique()), reverse=True)
     palette = get_seaborn_palette(len(sorted_models))
+
+    if checkpoint_tokens_map is not None:
+        res_df = map_checkpoints_to_tokens(res_df, checkpoint_tokens_map)
+
+    res_df['model'] = res_df['model'].apply(lambda x: normalize_model_name(x, model_seed, average_random))
+    x_key = 'num_training_tokens' if checkpoint_tokens_map is not None else 'checkpoint'
+
     for metric in sorted(list(res_df['metric'].unique())):
         metric_df = res_df[res_df['metric'] == metric]
+
+        print(f'Plotting {metric}')
+        print(metric_df['model'].unique())
+
         if min_checkpoint is not None:
             metric_df = metric_df[metric_df['checkpoint'] >= min_checkpoint]
         _, axes = plt.subplots(2, 1, figsize=(10, 15))
         for idx, dataset in enumerate(['treebank', 'wikipedia']):
             dataset_df = metric_df[metric_df['dataset'] == dataset]
-            sns.lineplot(data=dataset_df, x='checkpoint', y='score', hue='model', hue_order=sorted_models, palette=palette, marker='o', legend=True, ax=axes[idx])
+            sns.lineplot(data=dataset_df, x=x_key, y='score', hue='model', hue_order=sorted_models, palette=palette, marker='o', legend=True, ax=axes[idx])
             axes[idx].set_title(f'{metric}, {dataset}')
+            # axes[idx].set_ylim(0, 100)
         plt.savefig(f'{output_path}{metric}.png') 
         plt.show()
 
+def load_checkpoint_tokens_map(src_dir):
+    checkpoint_tokens_map = {}
+    for curriculum_file_name in os.listdir(src_dir):
+        curriculum = curriculum_file_name.split('.')[0]
+        file_path = os.path.join(src_dir, curriculum_file_name)
+        with open(file_path, 'r') as src_file:
+            curriculum_map = json.load(src_file)
+        checkpoint_tokens_map[curriculum] = curriculum_map
+    return checkpoint_tokens_map
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--model_type', choices=['bert', 'gpt'])
     parser.add_argument('-s', '--model_seed')
     parser.add_argument('-a', '--average_random', action='store_true')
+    parser.add_argument('-n', '--num_tokens_map', action='store_true')
     args = parser.parse_args()
+
+    if args.num_tokens_map:
+        num_tokens_dir = 'data/num_training_tokens'
+        checkpoint_tokens_map = load_checkpoint_tokens_map(num_tokens_dir)
+    else:
+        checkpoint_tokens_map = None
 
     src_dir = f'data/perplexity/{args.model_type}'
     if args.model_seed:
         output_path = f'results/{args.model_type}/seed_{args.model_seed}/'
     else:
         output_path = f'results/{args.model_type}/'
-    res_df = load_perplexity_df(src_dir, args.model_seed, average_random=args.average_random)
-    plot_results(res_df, output_path, average_random=args.average_random)
+    if args.num_tokens_map:
+        output_path = 'num_tokens_' + output_path
+    res_df = load_perplexity_df(src_dir, args.model_seed)
+    plot_results(res_df, output_path, model_seed=args.model_seed, average_random=args.average_random, checkpoint_tokens_map=checkpoint_tokens_map)
 
 if __name__ == '__main__':
     main()
