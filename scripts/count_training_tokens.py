@@ -1,4 +1,4 @@
-from transformers import BertTokenizer
+from transformers import AutoTokenizer
 from datasets import Dataset
 import pandas as pd
 import argparse
@@ -50,14 +50,22 @@ def count_tokens(tokenized_dataset, sentences_to_checkpoints):
                 ckeckpoints_to_tokens[sentences_to_checkpoints[sent_num]] = num_tokens
     return ckeckpoints_to_tokens
 
+
+def load_tokenizer(model_type):
+    if model_type == 'bert':
+        tokenizer_path = 'models/bert_tokenizer'
+    else:
+        tokenizer_path = 'models/gpt2_tokenizer'
+    return AutoTokenizer.from_pretrained(tokenizer_path)
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--curriculum', type=str, required=True)
+    parser.add_argument('-m', '--model_type', type=str, choices=['bert', 'gpt'])
     args = parser.parse_args()
 
     batch_size = 128 * 2 # per device batch size * GPUs
-    tokenizer_path = 'models/bert_tokenizer'
-    tokenizer = BertTokenizer.from_pretrained(tokenizer_path)
+    tokenizer = load_tokenizer(args.model_type)
 
     
     dataset_path = f'data/datasets/train_1_{args.curriculum}.csv'    
@@ -67,8 +75,7 @@ def main():
                        64000, 68000, 72000, 76000, 80000, 84000, 88000, 92000, 96000, 100000, 104000, 
                        108000, 112000, 116000]
 
-    print(checkpoint_list)
-    exit(0)
+ 
 
     checkpoints_to_sentences = {checkpoint_num: checkpoint_num * batch_size for checkpoint_num in checkpoint_list}
     sentences_to_checkpoints = {value: key for key, value in checkpoints_to_sentences.items()}
@@ -76,7 +83,7 @@ def main():
     tokenized_datasets = load_and_tokenize_dataset(dataset_path, tokenizer)
     checkpoints_tokens = count_tokens(tokenized_datasets, sentences_to_checkpoints)
 
-    with open(os.path.join('data/num_training_tokens', f'{args.curriculum}.json'), 'w') as f:
+    with open(os.path.join(f'data/num_training_tokens/{args.model_type}', f'{args.curriculum}.json'), 'w') as f:
         json.dump(checkpoints_tokens, f)
 
 if __name__ == '__main__':
