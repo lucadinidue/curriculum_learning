@@ -65,20 +65,21 @@ def normalize_model_name(model_name, model_seed, average_random):
             model_name = 'random'
     return model_name
 
-def get_task_results(models_dir, downstream_task, model_size, model_seed=None, average_random=False, average_metrics=False):
+def get_task_results(models_dir, downstream_task, model_seed=None, average_random=False, average_metrics=False):
     res_df = []
     for model_name in os.listdir(models_dir):
-        if model_size in model_name:
-            if model_seed is None or f'{model_seed}_train' in model_name:
-                model_df = get_model_results(models_dir, model_name, downstream_task, average_metrics)
-                model_df['model'] = normalize_model_name(model_name, model_seed, average_random)
-                res_df.append(model_df)
+        if model_seed is None or f'{model_seed}_train' in model_name:
+            model_df = get_model_results(models_dir, model_name, downstream_task, average_metrics)
+            model_df['model'] = normalize_model_name(model_name, model_seed, average_random)
+            res_df.append(model_df)
     res_df = pd.concat(res_df)
     return res_df
 
 def map_checkpoints_to_tokens(res_df, checkpoint_tokens_map):
     def map_row(row):
         curriculum = '_'.join(row['model'].split('_')[5:])
+        if curriculum == '': # if no seed is provided, the 'model' value is just the curriculum
+            curriculum = row['model']
         checkpoint = str(row['checkpoint'])
         num_tokens = None
         if curriculum in checkpoint_tokens_map:
@@ -93,8 +94,7 @@ def map_checkpoints_to_tokens(res_df, checkpoint_tokens_map):
 
 
 def plot_results(res_df, task, output_path, checkpoint_tokens_map=None, average_random=False, max_checkpoint=None, metric_name=None):
-    # sorted_models = HUE_ORDER if average_random else 
-    sorted_models = sorted(list(res_df['model'].unique()), reverse=True)
+    sorted_models = HUE_ORDER if average_random else sorted(list(res_df['model'].unique()), reverse=True)
     # sorted_models[0], sorted_models[-1] = sorted_models[-1], sorted_models[0]    
     palette = get_seaborn_palette(len(sorted_models))
 
@@ -135,7 +135,6 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--downstream_task', choices=['sentiment', 'complexity', 'pos_tagging'])
     parser.add_argument('-m', '--model_name', choices=['bert', 'gpt'])
-    parser.add_argument('-d', '--model_size')#, default='medium', choices=['small', 'medium', 'base'])
     parser.add_argument('-s', '--model_seed')
     parser.add_argument('-a', '--average_random', action='store_true')
     parser.add_argument('-n', '--num_tokens_map', action='store_true')
@@ -150,16 +149,13 @@ def main():
     if args.model_seed is not None:
         output_path = f'results/{args.model_name}/seed_{args.model_seed}/{args.model_name}_{args.downstream_task}'   
     else:
-        output_path = f'results/{args.model_name}_{args.model_size}_{args.downstream_task}'
+        output_path = f'results/{args.model_name}_{args.downstream_task}'
     if args.num_tokens_map:
         output_path = 'num_tokens_' + output_path 
 
-    # if not os.path.exists(output_path):
-    #     os.makedirs(output_path)
-
     average_metrics = True if args.downstream_task == 'sentiment' else False
     models_dir = f'models/downstream_tasks/{args.model_name}/{args.downstream_task}'
-    res_df = get_task_results(models_dir, args.downstream_task, args.model_size, model_seed=args.model_seed, average_random=args.average_random, average_metrics=average_metrics)
+    res_df = get_task_results(models_dir, args.downstream_task, model_seed=args.model_seed, average_random=args.average_random, average_metrics=average_metrics)
     plot_results(res_df, args.downstream_task, output_path, checkpoint_tokens_map, average_random=args.average_random, )#, metric_name='avg f1')
 
 if __name__ == '__main__':
