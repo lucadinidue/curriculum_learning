@@ -6,14 +6,14 @@ import json
 import os
 
 
-def load_checkpoint_nums(curriculum):
-    checkpoints = []
-    checkpoints_dir = f'models/pretrained/bert/bert_medium_42_train_1_{curriculum}' # all models have the same checkpoints
-    for checkpoint_subdir in os.listdir(checkpoints_dir):
-        if checkpoint_subdir.startswith('checkpoint-'):
-            checkpoint_num = int(checkpoint_subdir.split('-')[1])
-            checkpoints.append(checkpoint_num)
-    return sorted(checkpoints)
+# def load_checkpoint_nums(curriculum):
+#     checkpoints = []
+#     checkpoints_dir = f'models/pretrained/bert/bert_medium_42_train_1_{curriculum}' # all models have the same checkpoints
+#     for checkpoint_subdir in os.listdir(checkpoints_dir):
+#         if checkpoint_subdir.startswith('checkpoint-'):
+#             checkpoint_num = int(checkpoint_subdir.split('-')[1])
+#             checkpoints.append(checkpoint_num)
+#     return sorted(checkpoints)
 
 def load_and_tokenize_dataset(dataset_path, tokenizer, text_column_name='text', max_seq_length=128, padding=False):
     df = pd.read_csv(dataset_path)
@@ -55,7 +55,7 @@ def load_tokenizer(model_type):
     if model_type == 'bert':
         tokenizer_path = 'models/bert_tokenizer'
     else:
-        tokenizer_path = 'models/gpt2_tokenizer'
+        tokenizer_path = 'models/gpt_tokenizer'
     return AutoTokenizer.from_pretrained(tokenizer_path)
 
 def main():
