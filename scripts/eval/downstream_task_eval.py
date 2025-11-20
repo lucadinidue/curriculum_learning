@@ -1,4 +1,4 @@
-from utils import get_seaborn_palette
+from utils import get_seaborn_palette, load_checkpoint_tokens_map, normalize_model_name, map_checkpoints_to_tokens
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -57,13 +57,6 @@ def get_model_results(models_dir, model_name, downstream_task, average_metrics=F
     res_df = pd.DataFrame.from_dict(res_dict)
     return res_df
 
-def normalize_model_name(model_name, model_seed, average_random):
-    if model_seed is None:
-        model_name = '_'.join(model_name.split('_')[5:])
-    if average_random:
-        if 'rand' in model_name or 'orig' in model_name:
-            model_name = 'random'
-    return model_name
 
 def get_task_results(models_dir, downstream_task, model_seed=None, average_random=False, average_metrics=False):
     res_df = []
@@ -73,23 +66,6 @@ def get_task_results(models_dir, downstream_task, model_seed=None, average_rando
             model_df['model'] = normalize_model_name(model_name, model_seed, average_random)
             res_df.append(model_df)
     res_df = pd.concat(res_df)
-    return res_df
-
-def map_checkpoints_to_tokens(res_df, checkpoint_tokens_map):
-    def map_row(row):
-        curriculum = '_'.join(row['model'].split('_')[5:])
-        if curriculum == '': # if no seed is provided, the 'model' value is just the curriculum
-            curriculum = row['model']
-        checkpoint = str(row['checkpoint'])
-        num_tokens = None
-        if curriculum in checkpoint_tokens_map:
-            if checkpoint in checkpoint_tokens_map[curriculum]:
-                num_tokens = checkpoint_tokens_map[curriculum][checkpoint]
-                return num_tokens
-        return None
-    
-    res_df['num_training_tokens'] = res_df.apply(map_row, axis=1)
-    res_df = res_df[res_df['num_training_tokens'].notnull()]
     return res_df
 
 
@@ -121,15 +97,6 @@ def plot_results(res_df, task, output_path, checkpoint_tokens_map=None, average_
     plt.savefig(f'{output_path}.png') 
     plt.show() 
 
-def load_checkpoint_tokens_map(src_dir):
-    checkpoint_tokens_map = {}
-    for curriculum_file_name in os.listdir(src_dir):
-        curriculum = curriculum_file_name.split('.')[0]
-        file_path = os.path.join(src_dir, curriculum_file_name)
-        with open(file_path, 'r') as src_file:
-            curriculum_map = json.load(src_file)
-        checkpoint_tokens_map[curriculum] = curriculum_map
-    return checkpoint_tokens_map
 
 def main():
     parser = argparse.ArgumentParser()
@@ -141,7 +108,7 @@ def main():
     args = parser.parse_args()
 
     if args.num_tokens_map:
-        num_tokens_dir = 'data/num_training_tokens'
+        num_tokens_dir = f'data/num_training_tokens/{args.model_name}'
         checkpoint_tokens_map = load_checkpoint_tokens_map(num_tokens_dir)
     else:
         checkpoint_tokens_map = None

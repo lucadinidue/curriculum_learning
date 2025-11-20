@@ -52,3 +52,13 @@ def normalize_model_name(model_name, model_seed, average_random):
         if 'rand' in model_name or 'orig' in model_name:
             model_name = 'random'
     return model_name
+
+def load_checkpoint_tokens_map(src_dir):
+    checkpoint_tokens_map = {}
+    for curriculum_file_name in os.listdir(src_dir):
+        curriculum = curriculum_file_name.split('.')[0]
+        file_path = os.path.join(src_dir, curriculum_file_name)
+        with open(file_path, 'r') as src_file:
+            curriculum_map = json.load(src_file)
+        checkpoint_tokens_map[curriculum] = curriculum_map
+    return checkpoint_tokens_map

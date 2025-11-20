@@ -92,7 +92,7 @@ def main():
     args = parser.parse_args()
 
     if args.num_tokens_map:
-        num_tokens_dir = 'data/num_training_tokens'
+        num_tokens_dir = f'data/num_training_tokens/{args.model_type}'
         checkpoint_tokens_map = load_checkpoint_tokens_map(num_tokens_dir)
     else:
         checkpoint_tokens_map = None

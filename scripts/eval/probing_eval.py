@@ -1,4 +1,4 @@
-from utils import get_seaborn_palette, map_checkpoints_to_tokens, normalize_model_name
+from utils import get_seaborn_palette, map_checkpoints_to_tokens, normalize_model_name, load_checkpoint_tokens_map
 from scipy.stats import spearmanr
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -60,8 +60,6 @@ def load_res_df(src_dir, res_df, model_seed=None, average_random=False):
     return pd.concat([res_df, pd.DataFrame.from_dict(res_dict)])
 
 def print_features_scores(res_df, output_path,  model_seed, average_random=False, checkpoint_tokens_map=None, legend_path=None, max_checkpoint=None):
-    sorted_models = HUE_ORDER if average_random else sorted(list(res_df['model'].unique()), reverse=True)
-    palette = get_seaborn_palette(len(sorted_models))
     if max_checkpoint is not None:
         res_df = res_df[res_df['checkpoint'] <= max_checkpoint]
         
@@ -73,6 +71,8 @@ def print_features_scores(res_df, output_path,  model_seed, average_random=False
         res_df = map_checkpoints_to_tokens(res_df, checkpoint_tokens_map)
 
     res_df['model'] = res_df['model'].apply(lambda x: normalize_model_name(x, model_seed, average_random))
+    sorted_models = HUE_ORDER if average_random else sorted(list(res_df['model'].unique()), reverse=True)
+    palette = get_seaborn_palette(len(sorted_models))
 
     x_key = 'num_training_tokens' if checkpoint_tokens_map is not None else 'checkpoint'
    
@@ -114,15 +114,6 @@ def load_computed_correlations(src_path):
     else:
         return pd.DataFrame(columns=['model', 'checkpoint', 'feature', 'layer', 'score'])
 
-def load_checkpoint_tokens_map(src_dir):
-    checkpoint_tokens_map = {}
-    for curriculum_file_name in os.listdir(src_dir):
-        curriculum = curriculum_file_name.split('.')[0]
-        file_path = os.path.join(src_dir, curriculum_file_name)
-        with open(file_path, 'r') as src_file:
-            curriculum_map = json.load(src_file)
-        checkpoint_tokens_map[curriculum] = curriculum_map
-    return checkpoint_tokens_map
 
 def main():
     parser = argparse.ArgumentParser()
@@ -136,7 +127,8 @@ def main():
     args = parser.parse_args()
 
     if args.num_tokens_map:
-        num_tokens_dir = 'data/num_training_tokens'
+        model_name = 'bert' if 'bert' in args.input_directory else 'gpt'
+        num_tokens_dir = f'data/num_training_tokens/{model_name}'
         checkpoint_tokens_map = load_checkpoint_tokens_map(num_tokens_dir)
     else:
         checkpoint_tokens_map = None
