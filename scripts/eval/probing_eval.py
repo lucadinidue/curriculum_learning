@@ -5,7 +5,6 @@ from tqdm import tqdm
 import seaborn as sns
 import pandas as pd
 import argparse
-import json
 import csv
 import os
 
@@ -56,7 +55,7 @@ def load_res_df(src_dir, res_df, model_seed=None, average_random=False):
                 except Exception as e:
                     print(e)
                     print(checkpoint_dir)
-    
+
     return pd.concat([res_df, pd.DataFrame.from_dict(res_dict)])
 
 def print_features_scores(res_df, output_path,  model_seed, average_random=False, checkpoint_tokens_map=None, legend_path=None, max_checkpoint=None):
@@ -82,7 +81,7 @@ def print_features_scores(res_df, output_path,  model_seed, average_random=False
 
 
 
-    for feat_idx, feature in tqdm(enumerate(features)):
+    for feat_idx, feature in tqdm(enumerate(features), total=len(features)):
         feature_df = res_df[(res_df['feature'] == feature)]
         vmin = feature_df[feature_df['feature'] == feature]['score'].min()
         vmax = feature_df[feature_df['feature'] == feature]['score'].max()

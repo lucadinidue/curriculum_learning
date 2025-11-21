@@ -53,7 +53,7 @@ def plot_loss(loss_df, output_path):
     plt.show()
 
 def compute_seed_loss_df(seed, models_dir, plot_output=True, output_path=None, average_random=False):
-    models_dir += f'/seed_{seed}'
+    models_dir += f'/random_{seed}'
     loss_df = create_loss_df(models_dir, seed, average_random)
     if plot_output:
         plot_loss(loss_df, output_path)
