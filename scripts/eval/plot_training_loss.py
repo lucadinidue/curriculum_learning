@@ -83,7 +83,7 @@ def main():
     if args.model_seed is None:
         all_loss_dfs = pd.concat(loss_dfs)
         output_path = f'results/{args.model_type}/{args.model_type}_medium_training_loss.png'
-        plot_loss(all_loss_dfs, output_path)    
+        plot_loss(all_loss_dfs, output_path, average_random=args.average_random)    
         
         
 if __name__ == '__main__':
