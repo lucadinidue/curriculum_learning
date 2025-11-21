@@ -8,6 +8,8 @@ import os
 
 sns.set_style('darkgrid')
 
+HUE_ORDER = ['sentence_length_inverted', 'sentence_length', 'readit_global_inverted', 'readit_global', 'gulpease_inverted', 'gulpease', 'random']
+
 def update_loss_dict(model_name, trainer_state, loss_dict, average_random=False):
     splitted_name = model_name.split('_')
     seed = splitted_name[2]
@@ -45,8 +47,8 @@ def create_loss_df(models_dir, seed, average_random=False):
     # loss_df = loss_df[['curriculum', 'epoch', 'loss']]
     return loss_df
 
-def plot_loss(loss_df, output_path):
-    sorted_models = sorted(list(loss_df['curriculum'].unique()), reverse=True)
+def plot_loss(loss_df, output_path, average_random=False):
+    sorted_models = sorted(list(loss_df['curriculum'].unique()), reverse=True) if not average_random else HUE_ORDER
     palette = get_seaborn_palette(len(sorted_models))
     sns.lineplot(loss_df, x='epoch', y='loss', hue='curriculum', palette=palette, hue_order=sorted_models, legend=True);
     plt.savefig(output_path) 
@@ -56,7 +58,7 @@ def compute_seed_loss_df(seed, models_dir, plot_output=True, output_path=None, a
     models_dir += f'/random_{seed}'
     loss_df = create_loss_df(models_dir, seed, average_random)
     if plot_output:
-        plot_loss(loss_df, output_path)
+        plot_loss(loss_df, output_path, average_random)
     return loss_df
 
 
