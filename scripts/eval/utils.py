@@ -1,4 +1,5 @@
 import seaborn as sns
+import pandas as pd
 import json
 import os
 
@@ -62,3 +63,25 @@ def load_checkpoint_tokens_map(src_dir):
             curriculum_map = json.load(src_file)
         checkpoint_tokens_map[curriculum] = curriculum_map
     return checkpoint_tokens_map
+
+# Different random models have slightly different number of seen tokens on training checkpoints. 
+# This method aggregates both the number of checkpoints and the models scores at that checkpoint.
+
+def aggregate_random_results(res_df):
+    df_random = res_df[res_df['model'] == 'random']
+    df_non_random = res_df[res_df['model'] != 'random']
+
+    avg_tokens = (
+        df_random
+        .groupby('checkpoint')['num_training_tokens']
+        .mean()
+        .rename('avg_num_training_tokens')
+    )
+
+    df_random = df_random.merge(avg_tokens, on='checkpoint')
+    df_random['num_training_tokens'] = df_random['avg_num_training_tokens']
+    df_random = df_random.drop(columns='avg_num_training_tokens')
+
+    df_final = pd.concat([df_random, df_non_random], ignore_index=True)
+
+    return df_final

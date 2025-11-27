@@ -1,4 +1,4 @@
-from utils import get_seaborn_palette, load_checkpoint_tokens_map, normalize_model_name, map_checkpoints_to_tokens
+from utils import get_seaborn_palette, load_checkpoint_tokens_map, normalize_model_name, map_checkpoints_to_tokens, aggregate_random_results
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -12,7 +12,7 @@ TASKS_METRICS = {
     'coherence': ['accuracy', 'f1'],
     'complexity': ['mae', 'spearmanr'],
     'sentiment': ['neg_f1', 'pos_f1'],#['neg_accuracy', 'neg_f1', 'pos_accuracy', 'pos_f1'],
-    'pos_tagging': ['f1', 'accuracy']
+    'pos_tagging': ['f1'] #, 'accuracy']
 }
 
 HUE_ORDER = ['sentence_length_inverted', 'sentence_length', 'readit_global_inverted', 'readit_global', 'gulpease_inverted', 'gulpease', 'random']
@@ -81,6 +81,8 @@ def plot_results(res_df, task, output_path, model_seed, checkpoint_tokens_map=No
         res_df = map_checkpoints_to_tokens(res_df, checkpoint_tokens_map)
     
     res_df['model'] = res_df['model'].apply(lambda x: normalize_model_name(x, model_seed, average_random))
+    if checkpoint_tokens_map:
+        res_df = aggregate_random_results(res_df)
 
     x_key = 'num_training_tokens' if checkpoint_tokens_map is not None else 'checkpoint'
 
@@ -118,7 +120,7 @@ def main():
     if args.model_seed is not None:
         output_path = f'results/{args.model_name}/seed_{args.model_seed}/{args.model_name}_{args.downstream_task}'   
     else:
-        output_path = f'results/{args.model_name}_{args.downstream_task}'
+        output_path = f'results/{args.model_name}/{args.model_name}_{args.downstream_task}'
     if args.num_tokens_map:
         output_path = 'num_tokens_' + output_path 
 

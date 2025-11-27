@@ -48,6 +48,7 @@ def create_loss_df(models_dir, seed, average_random=False):
     return loss_df
 
 def plot_loss(loss_df, output_path, average_random=False):
+    loss_df = loss_df[loss_df['epoch'] <= 0.5]
     sorted_models = sorted(list(loss_df['curriculum'].unique()), reverse=True) if not average_random else HUE_ORDER
     palette = get_seaborn_palette(len(sorted_models))
     sns.lineplot(loss_df, x='epoch', y='loss', hue='curriculum', palette=palette, hue_order=sorted_models, legend=True);
@@ -82,7 +83,7 @@ def main():
         loss_dfs.append(loss_df)
     if args.model_seed is None:
         all_loss_dfs = pd.concat(loss_dfs)
-        output_path = f'results/{args.model_type}/{args.model_type}_medium_training_loss.png'
+        output_path = f'results/{args.model_type}/first_steps_{args.model_type}_medium_training_loss.png'
         plot_loss(all_loss_dfs, output_path, average_random=args.average_random)    
         
         

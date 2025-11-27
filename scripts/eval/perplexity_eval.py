@@ -1,4 +1,4 @@
-from utils import get_seaborn_palette, map_checkpoints_to_tokens, normalize_model_name
+from utils import get_seaborn_palette, map_checkpoints_to_tokens, normalize_model_name, aggregate_random_results
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -59,19 +59,35 @@ def plot_results(res_df, output_path, model_seed, average_random=False, min_chec
     res_df['model'] = res_df['model'].apply(lambda x: normalize_model_name(x, model_seed, average_random))
     x_key = 'num_training_tokens' if checkpoint_tokens_map is not None else 'checkpoint'
 
+    if checkpoint_tokens_map:
+        res_df = aggregate_random_results(res_df)
+
     for metric in sorted(list(res_df['metric'].unique())):
         metric_df = res_df[res_df['metric'] == metric]
 
-        if min_checkpoint is not None:
-            metric_df = metric_df[metric_df['checkpoint'] >= min_checkpoint]
         _, axes = plt.subplots(2, 1, figsize=(10, 15))
         for idx, dataset in enumerate(['treebank', 'wikipedia']):
             dataset_df = metric_df[metric_df['dataset'] == dataset]
             sns.lineplot(data=dataset_df, x=x_key, y='score', hue='model', hue_order=sorted_models, palette=palette, marker='o', legend=True, ax=axes[idx])
             axes[idx].set_title(f'{metric}, {dataset}')
-            # axes[idx].set_ylim(0, 100)
-        plt.savefig(f'{output_path}{metric}.png') 
+            ymax = dataset_df['score'].quantile(0.80)
+            line_mins = []
+            for line in axes[idx].lines:
+                ydata = line.get_ydata()
+                if len(ydata) > 0:
+                    line_mins.append(min(ydata))
+            ymin = min(line_mins)-30
+            axes[idx].set_ylim(ymin=ymin, ymax=ymax)
+            axes[idx].axhline(y=ymax, color='gray', linestyle='--', alpha=0.6)
+            axes[idx].text(
+                x=0.02, y=ymax, s='values above this line not shown',
+                transform=axes[idx].get_yaxis_transform(),
+                fontsize=8, color='gray', va='bottom'
+            )
+
+        plt.savefig(f'{output_path}{metric}_filter_y.png') 
         plt.show()
+
 
 def load_checkpoint_tokens_map(src_dir):
     checkpoint_tokens_map = {}
