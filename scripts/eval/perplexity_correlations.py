@@ -48,7 +48,7 @@ def get_curriculum_list(df):
     return curricula, groups
 
 def compute_perplexity_correlations(df, curricula, groups):
-    corr_seed = df.corr(method="pearson")
+    corr_seed = df.corr(method="spearman")
     correlations_df = pd.DataFrame(index=curricula, columns=curricula, dtype=float)
     for currA in curricula:
         for currB in curricula:
@@ -63,7 +63,7 @@ def compute_perplexity_correlations(df, curricula, groups):
 
 def plot_correlations(correlations_df, output_path):
     plt.figure(figsize=(9, 7))
-    sns.heatmap(correlations_df, annot=True, fmt=".2f", cmap='coolwarm', vmin=0, vmax=1)
+    sns.heatmap(correlations_df, annot=True, fmt=".2f", cmap='coolwarm', vmin=0, vmax=1, cbar=False)
     plt.tight_layout()
     plt.show()
     plt.savefig(output_path) 
@@ -87,7 +87,6 @@ def main():
 
     curricula, groups = get_curriculum_list(df)
     correlations_df = compute_perplexity_correlations(df, curricula, groups)
-    print(correlations_df)
     plot_correlations(correlations_df, output_path)
    
 
