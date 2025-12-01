@@ -99,6 +99,7 @@ def compute_metrics_classification(eval_pred):
 
 
 TASKS_MAP = {
+    'complexity_gulpease': {'compute_metrics': compute_metrics_regression, 'num_labels': 1},
     'complexity': {'compute_metrics': compute_metrics_regression, 'num_labels': 1},
     'sentiment': {'compute_metrics': compute_metrics_sentipolc_classification, 'num_labels': 2},
     'coherence': {'compute_metrics': compute_metrics_classification, 'num_labels': 2},
@@ -256,7 +257,7 @@ def tokenize_dataset_dataset_for_token_classification(dataset, tokenizer, model)
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-m', '--model_dir', type=str)
-    parser.add_argument('-t', '--downstream_task', type=str, choices=['complexity', 'sentiment', 'coherence', 'pos_tagging'])
+    parser.add_argument('-t', '--downstream_task', type=str, choices=['complexity', 'complexity_gulpease', 'sentiment', 'coherence', 'pos_tagging'])
     parser.add_argument('-e', '--epochs', type=int, default=10)
     args = parser.parse_args()
 
@@ -275,30 +276,6 @@ def main():
     
     model_finetuning(args.model_dir, args.downstream_task, task_map['num_labels'], task_map['compute_metrics'], os.path.join(output_dir, 'checkpoint-117189'), args.epochs)
 
-
-def main1():
-    model_names = ['models/pretrained/bert_medium_42_train_1_gulpease', 'models/pretrained/bert_medium_42_train_1_gulpease_inverted', 'models/pretrained/bert_medium_42_train_1_orig_inverted']
-    downstream_tasks = ['sentiment', 'complexity', 'pos_tagging']
-
-    for downstream_task in downstream_tasks:
-        for model_dir in model_names:
-            model_name = model_dir.split('/')[-1] if 'bert' in model_dir.split('/')[-1] else model_dir.split('/')[-2]
-            output_dir = os.path.join('models/downstream_tasks', downstream_task, model_name)
-            task_map = TASKS_MAP[downstream_task]
-
-            for checkpoint_name in os.listdir(model_dir):
-                checkpoint_path = os.path.join(model_dir, checkpoint_name)
-                if os.path.isdir(checkpoint_path):
-                    output_path = os.path.join(output_dir, checkpoint_name)
-                    if not os.path.exists(output_path):
-                        model_finetuning(checkpoint_path, downstream_task, task_map['num_labels'], task_map['compute_metrics'], output_path, 10)
-                    else:
-                        print('skipping', checkpoint_path, 'on', downstream_task)
-
-        if not os.path.exists(os.path.join(output_dir, 'checkpoint-117189')):   
-            model_finetuning(model_dir, downstream_task, task_map['num_labels'], task_map['compute_metrics'], os.path.join(output_dir, 'checkpoint-117189'), 10)
-        else:
-            print('skipping final checkpoint on', downstream_task)
 
 
 if __name__ == '__main__':
