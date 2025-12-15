@@ -6,6 +6,15 @@ import argparse
 import json
 import os
 
+plt.rcParams.update({
+    "font.size": 22,
+    "axes.titlesize": 26,
+    "axes.labelsize": 24,
+    "xtick.labelsize": 20,
+    "ytick.labelsize": 20,
+    "legend.fontsize": 20
+})
+
 sns.set_style('darkgrid')
 
 HUE_ORDER = ['sentence_length_inverted', 'sentence_length', 'readit_global_inverted', 'readit_global', 'gulpease_inverted', 'gulpease', 'random']
@@ -47,12 +56,13 @@ def create_loss_df(models_dir, seed, average_random=False):
     # loss_df = loss_df[['curriculum', 'epoch', 'loss']]
     return loss_df
 
-def plot_loss(loss_df, output_path, average_random=False):
-    loss_df = loss_df[loss_df['epoch'] <= 0.5]
+def plot_loss(loss_df, output_path, average_random=False, plot_legend=True):
+    # loss_df = loss_df[loss_df['epoch'] <= 0.5]
     sorted_models = sorted(list(loss_df['curriculum'].unique()), reverse=True) if not average_random else HUE_ORDER
     palette = get_seaborn_palette(len(sorted_models))
-    sns.lineplot(loss_df, x='epoch', y='loss', hue='curriculum', palette=palette, hue_order=sorted_models, legend=True);
-    plt.savefig(output_path) 
+    plt.figure(figsize=(10, 7))
+    sns.lineplot(loss_df, x='epoch', y='loss', hue='curriculum', palette=palette, hue_order=sorted_models, legend=plot_legend);
+    plt.savefig(output_path, bbox_inches="tight") 
     plt.show()
 
 def compute_seed_loss_df(seed, models_dir, plot_output=True, output_path=None, average_random=False):
@@ -78,13 +88,13 @@ def main():
 
     loss_dfs = []
     for seed in seeds:
-        output_path = f'results/{args.model_type}/seed_{seed}/{args.model_type}_medium_training_loss.png'
+        output_path = f'plots/{args.model_type}/seed_{seed}/{args.model_type}_medium_training_loss.pdf'
         loss_df = compute_seed_loss_df(seed, models_dir, plot_output=args.model_seed is not None, output_path=output_path, average_random=args.average_random)    
         loss_dfs.append(loss_df)
     if args.model_seed is None:
         all_loss_dfs = pd.concat(loss_dfs)
-        output_path = f'results/{args.model_type}/first_steps_{args.model_type}_medium_training_loss.png'
-        plot_loss(all_loss_dfs, output_path, average_random=args.average_random)    
+        output_path = f'plots/{args.model_type}/{args.model_type}_medium_training_loss.pdf'
+        plot_loss(all_loss_dfs, output_path, average_random=args.average_random, plot_legend=False)    
         
         
 if __name__ == '__main__':
