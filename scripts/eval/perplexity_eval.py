@@ -8,6 +8,16 @@ import os
 
 sns.set_style("darkgrid")
 
+
+plt.rcParams.update({
+    "font.size": 22,
+    "axes.titlesize": 28,
+    "axes.labelsize": 24,
+    "xtick.labelsize": 20,
+    "ytick.labelsize": 20,
+    "legend.fontsize": 20
+})
+
 HUE_ORDER = ['sentence_length_inverted', 'sentence_length', 'readit_global_inverted', 'readit_global', 'gulpease_inverted', 'gulpease', 'random']
 
 def score_model(src_path):
@@ -65,27 +75,36 @@ def plot_results(res_df, output_path, model_seed, average_random=False, min_chec
     for metric in sorted(list(res_df['metric'].unique())):
         metric_df = res_df[res_df['metric'] == metric]
 
-        _, axes = plt.subplots(2, 1, figsize=(10, 15))
+        _, axes = plt.subplots(2, 1, figsize=(10, 16))
+        plt.subplots_adjust(hspace=0.35)  
         for idx, dataset in enumerate(['treebank', 'wikipedia']):
             dataset_df = metric_df[metric_df['dataset'] == dataset]
-            sns.lineplot(data=dataset_df, x=x_key, y='score', hue='model', hue_order=sorted_models, palette=palette, marker='o', legend=True, ax=axes[idx])
-            axes[idx].set_title(f'{metric}, {dataset}')
-            ymax = dataset_df['score'].quantile(0.80)
-            line_mins = []
-            for line in axes[idx].lines:
-                ydata = line.get_ydata()
-                if len(ydata) > 0:
-                    line_mins.append(min(ydata))
-            ymin = min(line_mins)-30
-            axes[idx].set_ylim(ymin=ymin, ymax=ymax)
-            axes[idx].axhline(y=ymax, color='gray', linestyle='--', alpha=0.6)
-            axes[idx].text(
-                x=0.02, y=ymax, s='values above this line not shown',
-                transform=axes[idx].get_yaxis_transform(),
-                fontsize=8, color='gray', va='bottom'
-            )
+            sns.lineplot(data=dataset_df, x=x_key, y='score', hue='model', hue_order=sorted_models, palette=palette, marker='o', legend=False, ax=axes[idx])
+            axes[idx].set_title(f'{dataset}')
+            # ymax = dataset_df['score'].quantile(0.80)
+            # line_mins = []
+            # for line in axes[idx].lines:
+            #     ydata = line.get_ydata()
+            #     if len(ydata) > 0:
+            #         line_mins.append(min(ydata))
+            # ymin = min(line_mins)-30
+            # axes[idx].set_ylim(ymin=ymin, ymax=ymax)
+            # axes[idx].axhline(y=ymax, color='black', linestyle='--', alpha=0.6)
+            # axes[idx].text(
+            #     x=0.02, 
+            #     y=ymax - 0.05*(ymax - ymin),  # push text slightly down
+            #     s='values above this line not shown',
+            #     transform=axes[idx].transData,
+            #     fontsize=21, 
+            #     color='black',    
+            #     va='bottom'
+            # )           
 
-        plt.savefig(f'{output_path}{metric}_filter_y.png') 
+            axes[idx].set_ylabel("perplexity")
+            axes[idx].set_xlabel("training tokens" if x_key == "num_training_tokens" else "checkpoint")
+
+        plt.tight_layout()
+        plt.savefig(f'{output_path}{metric}.pdf') 
         plt.show()
 
 
@@ -115,11 +134,11 @@ def main():
 
     src_dir = f'data/perplexity/{args.model_type}'
     if args.model_seed:
-        output_path = f'results/{args.model_type}/seed_{args.model_seed}/'
+        output_path = f'plots/{args.model_type}/seed_{args.model_seed}/'
     else:
-        output_path = f'results/{args.model_type}/'
-    if args.num_tokens_map:
-        output_path = 'num_tokens_' + output_path
+        output_path = f'plots/{args.model_type}/'
+    # if args.num_tokens_map:
+    #     output_path = 'num_tokens_' + output_path
     res_df = load_perplexity_df(src_dir, args.model_seed)
     plot_results(res_df, output_path, model_seed=args.model_seed, average_random=args.average_random, checkpoint_tokens_map=checkpoint_tokens_map)
 
