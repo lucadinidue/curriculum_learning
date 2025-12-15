@@ -10,3 +10,6 @@ models/*
 *pyc
 *ipynb
 */old/*
+plots/*
+Makefile
+mlruns/*
