@@ -2,7 +2,11 @@
 
 By Luc(i?)a
 
-## Models
+### 1. Models
+- Encoder
+- Decoder
+
+### 2. Curricula
 
 - 5 Random Models
 - Curriculum Sentence Length
@@ -11,102 +15,9 @@ By Luc(i?)a
 
 ### 3 model initialization seeds
 
- - Seed 42 🌱  
- - Seed 995 🌷  
- - Seed 755 🥑
+ - Seed 42  
+ - Seed 995 
+ - Seed 755
 
+![Graphical Abstract](graphical_abstract.jpg)
 
-## ENCODERS
-
-Model performances 🏋️ 
- 
-|                | Probing | PPL Wiki | PPL Treebank | Sentiment | Complexity | POS Tagging |
-|----------------|---------|----------|--------------|-----------|------------|-------------|
-| Orig           | 🌱  🌷  🥑  | 🌱 🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  |
-| Orig_I         | 🌱  🌷  🥑  | 🌱 🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  |
-| Rand42         | 🌱  🌷  🥑  | 🌱 🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  |
-| Rand42_I       | 🌱  🌷  🥑  | 🌱 🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  |
-| RandPI         | 🌱  🌷  🥑  | 🌱 🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  |
-| RandPI_I       | 🌱  🌷  🥑  | 🌱 🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  |
-| RandR2         | 🌱  🌷  🥑  | 🌱 🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  |
-| RandR2_I       | 🌱  🌷  🥑  | 🌱 🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  |
-| RandG          | 🌱  🌷  🥑  | 🌱 🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  |
-| RandG_I        | 🌱  🌷  🥑  | 🌱 🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  |
-| Gulpease       | 🌱  🌷  🥑  | 🌱 🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  |
-| Gulpease_I     | 🌱  🌷  🥑  | 🌱 🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  |
-| Sentence_len   | 🌱  🌷  🥑  | 🌱 🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  |
-| Sentence_len_I | 🌱  🌷  🥑  | 🌱 🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  |
-| Readit         | 🌱  🌷  🥑  | 🌱 🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  |
-| Readit_I       | 🌱  🌷  🥑  | 🌱 🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  | 🌱  🌷  🥑  |
-
-
-
-# Representations' Space 🚀
-
-
-| **Category**     | **IsoScore**      | **Lin_ID**      | **NonLin_ID**    | **cos_sim**      | **varex**        | **Partition (?)** |
-|------------------|-------------------|-----------------|------------------|------------------|------------------|-------------------|
-| **Orig**         | 🌱 🌷 🥑          | 🌱 🥑           | 🌱 🌷 🥑         | 🌱 🌷 🥑        | 🌱 🌷 🥑         | 🌷               |
-| **Orig_I**       | 🌱 🌷             | 🌱 🌷           | 🌱               | 🌱 🌷            | 🌱 🌷           | 🌱               |
-| **Rand42**       | 🌱 🌷             | 🌱 🌷           | 🌱 🌷            | 🌱 🌷            | 🌱 🌷           | 🌱               |
-| **Rand42_I**     | 🌱 🌷 🌱 🌷       | 🌱 🌷           | 🌱 🌷            | 🌱 🌷            | 🌱 🌷           | 🌱               |
-| **RandPI**       | 🌱                | 🌱 🌷           | 🌱 🌷            | 🌱 🌷            | 🌱 🌷           | 🌱               |
-| **RandPI_I**     | 🌱                | 🌱              | 🌱               | 🌱               | 🌱               | 🌱               |
-| **RandR2**       | 🌱🌷              | 🌱🌷            | 🌱🌷             | 🌱🌷             | 🌱🌷            | 🌱               |
-| **RandR2_I**     | 🌱🌷              | 🌱 🌷           | 🌱 🌷            | 🌱 🌷            | 🌱🌷            | 🌱               |
-| **RandG**        | 🌱                | 🌱              | 🌱               | 🌱               | 🌱              | 🌱               |
-| **RandG_I**      | 🌱                | 🌱              | 🌱               | 🌱               | 🌱              | 🌱               |
-| **Gulpease**     | 🌱 🌷 🥑          | 🌱 🌷 🥑        | 🌱 🌷 🥑        | 🌱 🌷 🥑         | 🌱 🌷 🥑        |                   |
-| **Gulpease_I**   | 🌱 🌷 🥑          | 🌱 🌷 🥑        | 🌱 🌷 🥑        | 🌱 🌷 🥑         | 🌱 🌷🥑         |                   |
-| **Sentence_len** | 🌱 🌷 🥑          | 🌷 🥑           | 🌱 🌷 🥑        | 🌱 🌷 🥑         | 🌱 🌷 🥑        | 🌱               |
-| **Sentence_len_I** | 🌱 🌷           | 🌱              | 🌱 🌷           | 🌱 🌷            | 🌱 🌷            | 🌱               |
-| **Readit**       | 🌱 🌷 🥑          | 🌱 🌷 🥑        | 🌱 🌷 🥑        | 🌱 🌷 🥑         | 🌱 🌷 🥑         | 🌱               |
-| **Readit_I**     | 🌱 🌷             | 🌱 🌷           | 🌱 🌷           | 🌱 🌷            | 🌱 🌷            | 🌱               |
-
-## DECODERS
-
-
-
-Model performances 🏋️ 
-
-|                | Probing | PPL Wiki | PPL Treebank | Sentiment | Complexity | POS Tagging |
-|----------------|---------|----------|--------------|-----------|------------|-------------|
-| Orig           | 🌱      |          |              | 🌱        | 🌱         | 🌱          |
-| Orig_I         | 🌱      |          |              | 🌱        | 🌱         | 🌱          |
-| Rand42         | 🌱      |          |              | 🌱        | 🌱         | 🌱          |
-| Rand42_I       | 🌱      |          |              | 🌱        | 🌱         | 🌱          |
-| RandPI         | 🌱      |          |              | 🌱        | 🌱         | 🌱          |
-| RandPI_I       |         |          |              |           |            |             |
-| RandR2         | 🌱      |          |              | 🌱        | 🌱         | 🌱          |
-| RandR2_I       | 🌱      |          |              | 🌱        | 🌱         | 🌱          |
-| RandG          | 🌱      |          |              | 🌱        | 🌱         | 🌱          |
-| RandG_I        | 🌱      |          |              | 🌱        | 🌱         | 🌱          |
-| Gulpease       | 🌱      |          |              | 🌱        | 🌱         | 🌱          |
-| Gulpease_I     | 🌱      |          |              | 🌱        | 🌱         | 🌱          |
-| Sentence_len   | 🌱      |          |              | 🌱        | 🌱         | 🌱          |
-| Sentence_len_I | 🌱      |          |              | 🌱        | 🌱         | 🌱          |
-| Readit         | 🌱      |          |              | 🌱        | 🌱         | 🌱          |
-| Readit_I       | 🌱      |          |              | 🌱        | 🌱         | 🌱          |
-
-
-# Representations' Space 🚀
-
-
-|                | Probing | PPL Wiki | PPL Treebank | Sentiment | Complexity | POS Tagging |
-|----------------|---------|----------|--------------|-----------|------------|-------------|
-| Orig           |         |          |              |           |            |             |
-| Orig_I         |         |          |              |           |            |             |
-| Rand42         |         |          |              |           |            |             |
-| Rand42_I       |         |          |              |           |            |             |
-| RandPI         |         |          |              |           |            |             |
-| RandPI_I       |         |          |              |           |            |             |
-| RandR2         |         |          |              |           |            |             |
-| RandR2_I       |         |          |              |           |            |             |
-| RandG          |         |          |              |           |            |             |
-| RandG_I        |         |          |              |           |            |             |
-| Gulpease       |         |          |              |           |            |             |
-| Gulpease_I     |         |          |              |           |            |             |
-| Sentence_len   |         |          |              |           |            |             |
-| Sentence_len_I |         |          |              |           |            |             |
-| Readit         |         |          |              |           |            |             |
-| Readit_I       |         |          |              |           |            |             |
